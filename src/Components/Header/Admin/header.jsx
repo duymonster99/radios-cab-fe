@@ -3,65 +3,48 @@ import { faBell, faCaretDown, faClock, faMagnifyingGlass } from '@fortawesome/fr
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQuery } from '@tanstack/react-query';
 import { jwtDecode } from 'jwt-decode';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 // services
-import { getOneApi } from '../../../Services/apiService';
+import { DataContext } from '../../../Hooks/context';
+import { Dropdown, Menu, message, Space } from 'antd';
 
-export default function HeaderAdmin({ breadcrumb }) {
+export default function HeaderAdmin() {
     const [barMobile, setBarMobile] = useState('');
     const [countBar, setCountBar] = useState(0);
-    const [showNotification, setShowNotification] = useState(true)
-    const [accountDetail, setAccountDetail] = useState(null);
+    const [showNotification, setShowNotification] = useState(true);
     const handleClick = () => {
         if (countBar === 0) {
             setBarMobile('translate-x-[5px]');
-            setCountBar(1)
-        }
-        else{
-            setBarMobile("")
-            setCountBar(0)
-        }
-    };
-
-    // ? ================================================================== handle token login ================================
-    const token_login = localStorage.getItem('token');
-
-    const fetchAccountData = async () => {
-        if (token_login) {
-            try {
-                const { payload } = jwtDecode(token_login);
-                if (payload?.id) {
-                    const accountData = await getOneApi(`user/${payload.id}`);
-                    return accountData;
-                }
-            } catch (error) {
-                console.error('Error decoding token or fetching account details:', error);
-                return [];
-            }
+            setCountBar(1);
         } else {
-            return [];
+            setBarMobile('');
+            setCountBar(0);
         }
     };
 
-    const { data, isSuccess } = useQuery({
-        queryKey: ['account'],
-        queryFn: fetchAccountData,
-        enabled: !!token_login, // Chỉ gọi query nếu có token
-    });
+    const handleLogout = () => {
+        localStorage.removeItem('tokenCompany');
+        setIsLogout(true)
+        message.success('Logout Successfully!');
+    };
 
-    useEffect(() => {
-        if (isSuccess) {
-            setAccountDetail(data)
-        }
-    }, [data, isSuccess]);
+    const items = [
+        {
+            key: '1',
+            label: 'Logout',
+            onClick: handleLogout,
+        },
+    ];
+
+    const menu = <Menu items={items} />;
+
+    const { breadcrumb, companyName, driver, user, setIsLogout } = useContext(DataContext);
 
     return (
         // <!-- Navbar -->
-        <nav
-            className="relative flex md:flex-wrap items-center md:justify-between p-[.5rem_0] mx-[1.5rem] rounded-[1rem] transition-all ease-in shadow-none duration-250 flex-nowrap justify-start"
-        >
+        <nav className="relative flex md:flex-wrap items-center md:justify-between p-[.5rem_0] mx-[1.5rem] rounded-[1rem] transition-all ease-in shadow-none duration-250 flex-nowrap justify-start">
             <div className="flex items-center justify-between w-full p-[.25rem_1rem] mx-auto flex-wrap-inherit">
                 <nav>
                     {/* <!-- breadcrumb --> */}
@@ -71,13 +54,13 @@ export default function HeaderAdmin({ breadcrumb }) {
                                 Pages
                             </Link>
                         </li>
-                        <li
-                            className="pl-[.5rem] font-medium capitalize leading-normal text-white before:float-left before:pr-[.5rem] before:text-white before:content-['/']"
-                        >
-                            {breadcrumb}
+                        <li className="pl-[.5rem] font-medium capitalize leading-normal text-white before:float-left before:pr-[.5rem] before:text-white before:content-['/']">
+                            {breadcrumb !== null && breadcrumb !== undefined && breadcrumb}
                         </li>
                     </ol>
-                    <h6 className="mb-0 font-bold text-white capitalize">{breadcrumb}</h6>
+                    <h6 className="mb-0 font-bold text-white capitalize">
+                        {breadcrumb !== null && breadcrumb !== undefined && breadcrumb}
+                    </h6>
                 </nav>
 
                 <div className="flex items-center mt-[.5rem] grow xs:mt-0 sm:mr-[1.5rem] mr-0 lg:basis-auto">
@@ -96,7 +79,10 @@ export default function HeaderAdmin({ breadcrumb }) {
 
                     <ul className="flex flex-row justify-end pl-0 mb-0 list-none md-max:w-full">
                         <li className="flex items-center pr-[.5rem] xl:hidden">
-                            <button className="w-[1.56rem] h-[1.56rem] p-[.125rem] overflow-hidden" onClick={handleClick}>
+                            <button
+                                className="w-[1.56rem] h-[1.56rem] p-[.125rem] overflow-hidden"
+                                onClick={handleClick}
+                            >
                                 <span
                                     className={`block w-full h-[.125rem] rounded-[.125rem] bg-white transition-all duration-400 relative ${barMobile}`}
                                 ></span>
@@ -120,7 +106,9 @@ export default function HeaderAdmin({ breadcrumb }) {
                             </button>
 
                             <ul
-                                className={`transform-dropdown before:font-awesome before:leading-default before:duration-350 before:ease lg:shadow-3xl duration-250 min-w-[11rem] before:sm:right-8 before:text-5.5 absolute right-0 top-[60%] z-50 origin-top list-none rounded-[.5rem] border-solid border-transparent bg-white bg-clip-padding p-[1rem_.5rem] text-left text-[rgb(103,116,142)] transition-all before:absolute before:right-2 before:left-auto before:top-0 before:z-50 before:inline-block before:font-normal before:text-white before:antialiased before:transition-all before:content-['\f0d8'] sm:-mr-[1.5rem] lg:absolute lg:right-0 lg:left-auto lg:mt-[.5rem] lg:block lg:cursor-pointer ${showNotification && "pointer-events-none opacity-0"}`}
+                                className={`transform-dropdown before:font-awesome before:leading-default before:duration-350 before:ease lg:shadow-3xl duration-250 min-w-[11rem] before:sm:right-8 before:text-5.5 absolute right-0 top-[60%] z-50 origin-top list-none rounded-[.5rem] border-solid border-transparent bg-white bg-clip-padding p-[1rem_.5rem] text-left text-[rgb(103,116,142)] transition-all before:absolute before:right-2 before:left-auto before:top-0 before:z-50 before:inline-block before:font-normal before:text-white before:antialiased before:transition-all before:content-['\f0d8'] sm:-mr-[1.5rem] lg:absolute lg:right-0 lg:left-auto lg:mt-[.5rem] lg:block lg:cursor-pointer ${
+                                    showNotification && 'pointer-events-none opacity-0'
+                                }`}
                             >
                                 {/* <!-- add show className on dropdown open js --> */}
                                 <li className="relative mb-[.5rem]">
@@ -228,10 +216,26 @@ export default function HeaderAdmin({ breadcrumb }) {
                         </li>
 
                         <li className="flex items-center">
-                            <button className="block p-[.5rem_0] font-semibold text-white transition-all">
-                                <span className="hidden sm:inline">{accountDetail !== null && accountDetail.length > 0 && accountDetail[0].fullName}</span>
-                                <FontAwesomeIcon icon={faCaretDown} className="sm:ml-[.25rem]" />
-                            </button>
+                            {/* <button className="block p-[.5rem_0] font-semibold text-white transition-all"> */}
+                            <Dropdown overlay={menu} placement="bottomRight">
+                                <Link onClick={(e) => e.preventDefault()}>
+                                    <Space style={{ padding: '1rem .5rem' }}>
+                                        {companyName !== null && companyName !== undefined && (
+                                            <span className="hidden sm:inline text-white">{companyName}</span>
+                                        )}
+
+                                        {driver !== null && driver !== undefined && (
+                                            <span className="hidden sm:inline text-white">{driver.driverFullName}</span>
+                                        )}
+
+                                        {user !== null && user !== undefined && (
+                                            <span className="hidden sm:inline text-white">{user.fullName}</span>
+                                        )}
+                                        <FontAwesomeIcon icon={faCaretDown} className="sm:ml-[.25rem] text-white" />
+                                    </Space>
+                                </Link>
+                            </Dropdown>
+                            {/* </button> */}
                         </li>
                     </ul>
                 </div>

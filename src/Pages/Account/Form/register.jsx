@@ -1,15 +1,20 @@
+// libraries
 import { EyeInvisibleOutlined, EyeOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
-import { useMutationHook } from '~/Hooks/useMutation';
-import { postApi } from '~/Services/apiService.js';
-import * as message from '~/Helper/MessageToast.js';
-import Loading from '~/Helper/Loading.jsx';
+import { useNavigate } from 'react-router-dom';
+
+// services
+import { useMutationHook } from '../../../Hooks/useMutation';
+import { postAdminService } from '../../../Services/apiService';
+import * as message from '../../../Helper/MessageToast';
+import Loading from '../../../Helper/Loading';
 
 export default function RegisterForm({ setShowRegister }) {
-    // dependencies
+    // ? ========================================================= dependencies ==============================================
     const [isShowEye, setIsShowEye] = useState(true);
     const [isShowEyeConfirm, setIsShowEyeConfirm] = useState(true);
     const [loadingPage, setLoadingPage] = useState(false);
+    const navigate = useNavigate()
     const [errorMessage, setErrorMessage] = useState({
         fullName: '',
         email: '',
@@ -17,7 +22,6 @@ export default function RegisterForm({ setShowRegister }) {
         passwordConfirm: '',
     });
 
-    // ? ========================================================== handle form data ==========================================
     const [formRegister, setFormRegister] = useState({
         fullName: '',
         email: '',
@@ -25,6 +29,7 @@ export default function RegisterForm({ setShowRegister }) {
     });
     const [passwordConfirm, setPasswordConfirm] = useState('');
 
+    // ? ========================================================== handle form data ==========================================
     const handleChange = (e) => {
         setFormRegister({
             ...formRegister,
@@ -46,8 +51,10 @@ export default function RegisterForm({ setShowRegister }) {
         setPasswordConfirm('')
     };
 
-    // ? ========================================================= call api post =============================================
-    const mutation = useMutationHook((props) => postApi(props));
+    // ? ========================================================= call api login =============================================
+    const mutation = useMutationHook((props) => postAdminService(props));
+
+    const { isSuccess, isLoading, isError, isPending, data } = mutation;
 
     const handleSubmitRegister = () => {
         const errors = {};
@@ -57,15 +64,17 @@ export default function RegisterForm({ setShowRegister }) {
 
         if (formRegister.email === '') {
             errors.email = 'Please enter your email';
-        } else if (!formRegister.email.includes('@gmail.com')) {
+        } 
+        else if (!formRegister.email.includes('@gmail.com')) {
             errors.email = 'Email invalid format';
         }
 
         if (formRegister.password === '') {
             errors.password = 'Please enter your password';
-        } else if (formRegister.password.length < 8) {
-            errors.password = 'Password must have at least 8 characters';
-        }
+        } 
+        // else if (formRegister.password.length < 8) {
+        //     errors.password = 'Password must have at least 8 characters';
+        // }
 
         if (passwordConfirm === '') {
             errors.passwordConfirm = 'Please enter repeat your password';
@@ -79,31 +88,48 @@ export default function RegisterForm({ setShowRegister }) {
                 ...errors,
             });
         } else {
-            mutation.mutate({ url: 'UserAuth/register', data: formRegister });
+            mutation.mutate({ url: 'User/user/register', data: formRegister });
         }
     };
 
-    const { isSuccess, isLoading, isError } = mutation;
+    const handleKeyDown = (e) => { 
+        if (e.key === 'Enter') {
+            handleSubmitRegister()
+        }    
+    }
 
-    // ? ======================================================== handle after post api =======================================
+    // ? ======================================================== handle after login =======================================
     useEffect(() => {
         if (isSuccess) {
-            message.success('Register successfully');
-            setShowRegister(false);
-        } else if (isError) {
-            message.error('Registration failed! Please check your registration information again!');
-            const errorMessage = mutation.error?.response?.data?.message;
-            console.log(errorMessage);
-            // setErrorMessage({
-            //     ...errorMessage,
-            //     email: mutation.error?.response?.data?.message
-            // })
-        } else if (isLoading) {
+            message.success(`${data.message}`);
+            setShowRegister(false)
+        }
+        if (isLoading || isPending) {
             setLoadingPage(true);
         }
-    }, [isSuccess, isError, isLoading, mutation, errorMessage, setShowRegister]);
+    }, [isSuccess, isLoading, setShowRegister, isPending, data]);
+
+    useEffect(() => {
+        if (isError) {
+            message.error('Registration failed! Please check your registration information again!');
+            const errorMessage = mutation.error?.response?.data?.message;
+
+            const newErrorMessage = {};
+    
+            if (errorMessage && errorMessage.includes('User')) {
+                newErrorMessage.identifier = errorMessage;
+            }
+    
+            if (errorMessage && errorMessage.includes('Password')) {
+                newErrorMessage.password = errorMessage;
+            }
+    
+            setErrorMessage((prev) => ({ ...prev, ...newErrorMessage }));
+        }
+    }, [isError, mutation.error])
 
     console.log(mutation);
+    
 
     return (
         <div className="bg-white px-10 py-20 rounded-3xl border-2 border-gray-100 w-[80%]">
@@ -206,6 +232,7 @@ export default function RegisterForm({ setShowRegister }) {
                                     name="passwordConfirm"
                                     value={passwordConfirm}
                                     onChange={(e) => setPasswordConfirm(e.target.value)}
+                                    onKeyDown={handleKeyDown}
                                 />
                                 <button onClick={() => setIsShowEyeConfirm(!isShowEyeConfirm)}>
                                     {isShowEyeConfirm ? (

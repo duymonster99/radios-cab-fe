@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ReactApexChart from "react-apexcharts";
 
 // components
-import CardDashBoard from './components/CardDashboard';
+import CardDashBoard from '../../../Components/CardDashboard/CardDashboard';
 import carousel1 from '../../../Assets/img/carousel-1.jpg'
 
 const Charts = () => {

@@ -1,11 +1,14 @@
+// libraries
 import { EyeInvisibleOutlined, EyeOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Loading from '~/Helper/Loading';
-import { useMutationHook } from '~/Hooks/useMutation';
-import { postApi } from '~/Services/apiService.js';
-import * as message from '~/Helper/MessageToast.js'
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from 'jwt-decode';
+
+// services
+import Loading from '../../../Helper/Loading';
+import { useMutationHook } from '../../../Hooks/useMutation';
+import { postAdminService } from '../../../Services/apiService';
+import * as message from '../../../Helper/MessageToast';
 
 export default function LoginForm({ setShowRegister }) {
     let navigate = useNavigate();
@@ -20,6 +23,7 @@ export default function LoginForm({ setShowRegister }) {
         identifier: '',
         password: '',
     });
+
     // ? ======================================================== handle data login ======================================
     const handleChangeLogin = (e) => {
         setFormLogin({
@@ -28,12 +32,12 @@ export default function LoginForm({ setShowRegister }) {
         });
         setErrorMessage({
             ...errorMessage,
-            [e.target.name]: ''
+            [e.target.name]: '',
         });
     };
 
     // ? ======================================================= login api ===============================================
-    const mutation = useMutationHook((props) => postApi(props));
+    const mutation = useMutationHook((props) => postAdminService(props));
 
     const handleSubmit = () => {
         const errors = {};
@@ -52,23 +56,30 @@ export default function LoginForm({ setShowRegister }) {
                 ...errors,
             });
         } else {
-            mutation.mutate({ url: "UserAuth/login", data: formLogin });
+            mutation.mutate({ url: 'User/user/login', data: formLogin });
         }
     };
 
-    const { data, isSuccess, isLoading, isError } = mutation;
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            handleSubmit()
+        }
+    }
+
+    const { data, isSuccess, isLoading, isError, isPending } = mutation;
 
     // ? ====================================================== handle after submit form ====================================
     useEffect(() => {
         if (isSuccess) {
             message.success('Login successfully');
-            const token = data?.access_token
-            localStorage.setItem('token', token)
+            const token = data?.token;
+            localStorage.setItem('tokenUser', token);
 
             if (token) {
-                const { payload } = jwtDecode(token)
-                
-                if (payload?.isAdmin) {
+                const tokenStorage = localStorage.getItem('tokenUser')
+                const { role } = jwtDecode(tokenStorage)             
+
+                if (role === 'Admin') {
                     navigate("/admin")
                 }
                 else {
@@ -77,25 +88,27 @@ export default function LoginForm({ setShowRegister }) {
             }
         } else if (isError) {
             message.error('Login failed!');
-            let emailError = ''
-            let passwordError = ''
             const errorMessage = mutation.error?.response?.data?.message;
 
-            if (errorMessage?.includes("email")) {
-                emailError = errorMessage
+            const newErrorMessage = {};
+    
+            if (errorMessage && errorMessage.includes('User')) {
+                newErrorMessage.identifier = errorMessage;
             }
-            else {
-                passwordError = errorMessage
+    
+            if (errorMessage && errorMessage.includes('Password')) {
+                newErrorMessage.password = errorMessage;
             }
+    
+            setErrorMessage((prev) => ({ ...prev, ...newErrorMessage }));
 
-            setErrorMessage({
-                identifier: emailError,
-                password: passwordError
-            })
-        } else if (isLoading) {
+            setLoadingPage(false)
+        }
+        
+        if (isPending || isLoading) {
             setLoadingPage(true);
         }
-    }, [isSuccess, isError, isLoading, mutation.error, data, navigate]);
+    }, [isSuccess, isError, isLoading, mutation.error, data, navigate, isPending]);
 
     return (
         <div className="bg-white px-10 py-20 w-[80%] rounded-3xl border-2 border-gray-100">
@@ -115,7 +128,7 @@ export default function LoginForm({ setShowRegister }) {
                                     errorMessage.identifier !== '' && 'border-red-600'
                                 }`}
                                 id="email"
-                                placeholder="Enter your email"
+                                placeholder={`Enter your Email`}
                                 name="identifier"
                                 value={formLogin.identifier}
                                 onChange={handleChangeLogin}
@@ -144,6 +157,7 @@ export default function LoginForm({ setShowRegister }) {
                                     name="password"
                                     value={formLogin.password}
                                     onChange={handleChangeLogin}
+                                    onKeyDown={handleKeyDown}
                                 />
                                 <button onClick={() => setIsShowEye(!isShowEye)}>
                                     {isShowEye ? (
@@ -163,7 +177,7 @@ export default function LoginForm({ setShowRegister }) {
                         </div>
 
                         <div className="flex justify-center mt-4">
-                            <button 
+                            <button
                                 className="py-3 border border-[#ffb524] rounded-2xl w-full hover:bg-[#81c408] hover:text-white duration-300 text-lg font-semibold active:scale-[.98] active:duration-75 transition-all"
                                 onClick={handleSubmit}
                             >

@@ -11,23 +11,45 @@ import GlobalContext from './Context/Context';
 // Components
 import ScrollToTopButton from './Components/ScrollToTop';
 import ClientLayout from './Components/Layout/ClientLayout';
+import Page404 from './Pages/Client/Driver/Login/Oops.jsx';
 
-// Public Route
-const HomePage = lazy(() => import('./Pages/Home'));
-const CompanyClientPage = lazy(() => import('./Pages/Company/Client'));
-const DriverClient = lazy(() => import('./Pages/Driver/Client'));
-const DriverDetail = lazy(() => import('./Pages/Driver/DetailPage'));
-const CompanyDetail = lazy(() => import('./Pages/Company/CompanyDetail'));
+// ? =================================================================== Public Route
+const HomePage = lazy(() => import('./Pages/Client/Home'));
+const CompanyClientPage = lazy(() => import('./Pages/Client/Company'));
+const DriverClient = lazy(() => import('./Pages/Client/Driver'));
+const DriverDetail = lazy(() => import('./Pages/Client/Driver/DetailPage'));
+const CompanyDetail = lazy(() => import('./Pages/Client/Company/CompanyDetail'));
+const CompanyPayment = lazy(() => import('./Pages/Client/Company/Payment'));
+const SuccessPayment = lazy(() => import('./Pages/Client/Company/Payment/success'));
 const Feedback = lazy(() => import('./Pages/Client/Feedback'));
 const LoginClientPage = lazy(() => import('./Pages/Account'));
+const LoginDriver = lazy(() => import('./Pages/Client/Driver/Login'));
+const RegisterCompany = lazy(() => import('./Pages/Client/Company/FormRegister'));
+const UserCompleteProfile = lazy(() => import('./Pages/Admin/CompleteProfile'));
 
-// Private Page
+//? ---------------------------------------------------------------------- Private Page
+// Admin Web
 const Dashboard = lazy(() => import('./Pages/Admin/Dashboard/index'));
 const UserManage = lazy(() => import('./Pages/Admin/UserManage/index'));
 const CompanyManage = lazy(() => import('./Pages/Admin/CompanyManage/index'));
-const CompanyDashboard = lazy(() => import('./Pages/Company/Dashboard/index'));
-const CompanyProfile = lazy(() => import('./Pages/Company/Dashboard/Profile/index'));
-const CompanyManageDriver = lazy(() => import('./Pages/Company/Dashboard/DriverManage/index'));
+const NewCompanyManage = lazy(() => import('./Pages/Admin/NewCompanyManage'));
+
+// Company
+import AuthCompany from './Pages/AdminCompany/AuthWrapper/AuthWrapper.jsx';
+const LoginCompany = lazy(() => import('./Pages/AdminCompany/Login'));
+const CompanyDashboard = lazy(() => import('./Pages/AdminCompany/Dashboard'));
+const StepsCompanyInfo = lazy(() => import('./Pages/AdminCompany/UpdateInfo'));
+const CompanyProfile = lazy(() => import('./Pages/AdminCompany/ProfileCompany'));
+const CompanyManageDriver = lazy(() => import('./Pages/AdminCompany/DriverManage'));
+const CompanyServiceType = lazy(() => import('./Pages/AdminCompany/ServiceTypeManage'));
+const CompanyLocation = lazy(() => import('./Pages/AdminCompany/LocationManage'));
+
+// Driver
+import AuthDriver from './Pages/Driver/AuthWrapper/AuthWrapper.jsx';
+const DriverDashboard = lazy(() => import('./Pages/Driver/Dashboard'));
+const AppDriver = lazy(() => import('./Pages/Driver/index'));
+const AppDriverProfile = lazy(() => import('./Pages/Driver/Profile'));
+const StepsDriverInfo = lazy(() => import('./Pages/Driver/CompleteProfile'));
 
 function App() {
     const [headerHeight, setHeaderHeight] = useState(0);
@@ -82,8 +104,9 @@ function App() {
                         <ScrollToTopButton />
                         <AnimatePresence mode="wait">
                             <Suspense fallback={<></>}>
+                                {/* Public Route */}
                                 <Routes>
-                                    {/* Public Route */}
+                                    <Route path="/404" element={<Page404 style={{ '--base-color': '#ff7a56' }} />} />
                                     <Route
                                         path="/"
                                         element={
@@ -103,10 +126,46 @@ function App() {
                                     />
 
                                     <Route
+                                        path="/company/register"
+                                        element={
+                                            <ClientLayout>
+                                                <RegisterCompany style={{ '--base-color': '#ff7a56' }} />
+                                            </ClientLayout>
+                                        }
+                                    />
+
+                                    <Route
+                                        path="/company/register/payment"
+                                        element={
+                                            <ClientLayout>
+                                                <CompanyPayment style={{ '--base-color': '#ff7a56' }} />
+                                            </ClientLayout>
+                                        }
+                                    />
+
+                                    <Route
+                                        path="/company/register/payment/success"
+                                        element={
+                                            <ClientLayout>
+                                                <SuccessPayment style={{ '--base-color': '#ff7a56' }} />
+                                            </ClientLayout>
+                                        }
+                                    />
+
+                                    <Route
                                         path="/driver"
                                         element={
                                             <ClientLayout>
                                                 <DriverClient style={{ '--base-color': '#ff7a56' }} />
+                                            </ClientLayout>
+                                        }
+                                    />
+
+                                    <Route
+                                        path="/login/company"
+                                        element={
+                                            <ClientLayout>
+                                                <LoginCompany style={{ '--base-color': '#ff7a56' }} />
                                             </ClientLayout>
                                         }
                                     />
@@ -147,18 +206,124 @@ function App() {
                                         }
                                     />
 
-                                    {/* Private Route */}
+                                    <Route
+                                        path="/user/additional-profile"
+                                        element={<UserCompleteProfile style={{ '--base-color': '#ff7a56' }} />}
+                                    />
+
+                                    {/* Supper Admin */}
+
+                                    {/* Admin company */}
+                                    <Route
+                                        path="/admin-company"
+                                        element={
+                                            <AuthCompany path="/admin-company">
+                                                <CompanyDashboard />
+                                            </AuthCompany>
+                                        }
+                                    />
+
+                                    <Route
+                                        path="/admin-company/additional-profile"
+                                        element={
+                                            <AuthCompany path="/admin-company/additional-profile">
+                                                <StepsCompanyInfo />
+                                            </AuthCompany>
+                                        }
+                                    />
+
+                                    <Route
+                                        path="/admin-company/profile"
+                                        element={
+                                            <AuthCompany path="/admin-company/profile">
+                                                <CompanyProfile />
+                                            </AuthCompany>
+                                        }
+                                    />
+
+                                    <Route
+                                        path="/admin-company/service-type"
+                                        element={
+                                            <AuthCompany path="/admin-company/service-type">
+                                                <CompanyServiceType />
+                                            </AuthCompany>
+                                        }
+                                    />
+
+                                    <Route
+                                        path="/admin-company/location-service"
+                                        element={
+                                            <AuthCompany path="/admin-company/location-service">
+                                                <CompanyLocation />
+                                            </AuthCompany>
+                                        }
+                                    />
+
+                                    <Route
+                                        path="/admin-company/driver"
+                                        element={
+                                            <AuthCompany path="/admin-company/driver">
+                                                <CompanyManageDriver />
+                                            </AuthCompany>
+                                        }
+                                    />
+
+                                    {/* Admin Driver */}
+                                    <Route
+                                        path="/login/driver"
+                                        element={
+                                            <ClientLayout>
+                                                <LoginDriver style={{ '--base-color': '#ff7a56' }} />
+                                            </ClientLayout>
+                                        }
+                                    />
+
+                                    <Route
+                                        path="/app-driver/additional-profile"
+                                        element={
+                                            <AuthDriver path="/app-driver/additional-profile">
+                                                <StepsDriverInfo />
+                                            </AuthDriver>
+                                        }
+                                    />
+
+                                    <Route
+                                        path="/app-driver/dashboard"
+                                        element={
+                                            <AuthDriver path="/app-driver/dashboard">
+                                                <DriverDashboard />
+                                            </AuthDriver>
+                                        }
+                                    />
+
+                                    <Route
+                                        path="/app-driver"
+                                        element={
+                                            <AuthDriver path="/app-driver">
+                                                <AppDriver />
+                                            </AuthDriver>
+                                        }
+                                    />
+
+                                    <Route
+                                        path="/app-driver/profile"
+                                        element={
+                                            <AuthDriver path="/app-driver/profile">
+                                                <AppDriverProfile />
+                                            </AuthDriver>
+                                        }
+                                    />
+                                </Routes>
+
+                                {/* Super Admin route */}
+                                <Routes>
                                     <Route path="/admin" element={<Dashboard />} />
 
                                     <Route path="/admin/user" element={<UserManage />} />
 
                                     <Route path="/admin/company" element={<CompanyManage />} />
 
-                                    <Route path="/company/dashboard" element={<CompanyDashboard />} />
-
-                                    <Route path="/company/profile" element={<CompanyProfile />} />
-
-                                    <Route path="/company/list-driver" element={<CompanyManageDriver />} />
+                                    <Route path="/admin/new-company" element={<NewCompanyManage />} />
                                 </Routes>
                             </Suspense>
                         </AnimatePresence>

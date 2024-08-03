@@ -25,7 +25,6 @@ const Buttons = (props) => {
         type={props.type === "submit" ? "submit" : undefined}
         style={style}
         className={`border-[2px] border-solid btn-${props.size}${props.className ? ' ' + props.className : ''}${typeof (props.themeColor) === "object" ? " btn-gradient" : ""}${typeof (props.color) === "object" ? " text-gradient" : ""}`}
-        href={props.href}
         onClick={props.onClick}
         disabled={props.disabled}
         variant="secondary"

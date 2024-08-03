@@ -4,16 +4,11 @@ import { useState } from 'react';
 // Components
 import LoginForm from './Form/login';
 import RegisterForm from './Form/register';
-import HeaderLayout from '../../Components/Header';
-import Footer from '../../Components/Footers/Footer';
-
 
 export default function Login(props) {
     const [showRegister, setShowRegister] = useState(false);
     return (
         <div style={props.style}>
-            <HeaderLayout />
-
             <div className="flex w-full h-auto">
                 <div className="w-full flex items-center justify-center lg:w-1/2 bg-gray-100 py-20">
                     {!showRegister ? (
@@ -29,8 +24,6 @@ export default function Login(props) {
                     <div className="absolute bottom-0 w-full h-1/2 bg-white/10 backdrop-blur-lg"></div>
                 </div>
             </div>
-            
-            <Footer />
         </div>
     );
 }

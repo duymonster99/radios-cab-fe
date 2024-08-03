@@ -1,3 +1,8 @@
+// images
+import NgocLan from '../../Assets/img/Homepage/NgocLan.jpg'
+import DungKhanh from '../../Assets/img/Homepage/DungKhanh.jpg'
+import QuangTeo from '../../Assets/img/Homepage/QuangTeo.jpg'
+
 const TestimonialsData01 = [
     {
         name: 'SHOKO MUGIKURA',
@@ -24,22 +29,25 @@ const TestimonialsData01 = [
 
 const TestimonialsData02 = [
     {
-        name: 'JEREMY SMITH',
-        designation: 'CO FOUNDER',
-        content: 'Lorem ipsum dolor amet consectetur do eiusmod tempor incididunt labore ut enim ad minim veniam',
-        img: 'https://via.placeholder.com/800x580',
+        name: 'Ngọc Lan',
+        designation: 'Business Owner',
+        content:
+            'Radio Cabs has significantly improved our ability to find reliable drivers for our intercity transportation needs. The platform is easy to use and has connected us with experienced professionals.',
+        img: NgocLan,
     },
     {
-        name: 'SHOKO MUGIKURA',
-        designation: 'CREATIVE HEAD',
-        content: 'Lorem ipsum dolor amet consectetur do eiusmod tempor incididunt labore ut enim ad minim veniam',
-        img: 'https://via.placeholder.com/800x580',
+        name: 'Dũng Khánh',
+        designation: 'Driver',
+        content:
+            'As a driver, Radio Cabs has provided me with numerous job opportunities that fit my schedule and preferences. The platform is a game-changer for freelance drivers. Very helpful! Website.',
+        img: DungKhanh,
     },
     {
-        name: 'HERMAN MILLER',
-        designation: 'HR MANAGER',
-        content: 'Lorem ipsum dolor amet consectetur do eiusmod tempor incididunt labore ut enim ad minim veniam',
-        img: 'https://via.placeholder.com/800x580',
+        name: 'Quang Tèo',
+        designation: 'End-User',
+        content:
+            'I have used Radio Cabs multiple times for intercity trips, and the service has always been reliable and professional. It’s great to have a platform that connects us with trusted drivers.',
+        img: QuangTeo,
     },
 ];
 
