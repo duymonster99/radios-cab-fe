@@ -173,7 +173,7 @@ export default function LoginForm({ setShowRegister }) {
                         </div>
 
                         <div className="mt-4 text-end">
-                            <Link className="font-medium text-base text-blue-500">Forgot password?</Link>
+                            <Link to="/account/forget-password" className="font-medium text-base text-blue-500">Forgot password?</Link>
                         </div>
 
                         <div className="flex justify-center mt-4">

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 // Libraries
 import { SearchOutlined } from '@ant-design/icons';
@@ -6,6 +6,15 @@ import { SearchOutlined } from '@ant-design/icons';
 // Components
 import Sidebar from '../../../Components/SidebarClient/SidebarClient';
 import CardDriver from './CardDriver';
+import { getCompanyService } from '../../../Services/apiService';
+
+// Data
+const DataSidebarFilter = () => {
+    const [companies, setCompanies] = useState([])
+
+    // ? ==================== GET API ====================
+    const getCompanies = () => getCompanyService('')
+}
 
 const DriverClient = (props) => {
     return (

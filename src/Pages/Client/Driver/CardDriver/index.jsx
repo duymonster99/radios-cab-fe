@@ -75,7 +75,7 @@ export default function CardDriver() {
             ))}
 
             {drivers.length === 0 && (
-                <div className='flex justify-center'><Empty /></div>
+                <div className='flex mx-auto items-center'><Empty /></div>
             )}
         </>
     );

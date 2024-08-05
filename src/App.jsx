@@ -26,6 +26,9 @@ const LoginClientPage = lazy(() => import('./Pages/Account'));
 const LoginDriver = lazy(() => import('./Pages/Client/Driver/Login'));
 const RegisterCompany = lazy(() => import('./Pages/Client/Company/FormRegister'));
 const UserCompleteProfile = lazy(() => import('./Pages/Admin/CompleteProfile'));
+const ForgetPassword = lazy(() => import('./Pages/Account/ForgetPasswordModule/forget.jsx'));
+const VerifyOtp = lazy(() => import('./Pages/Account/ForgetPasswordModule/VerifyOtp.jsx'));
+const ResetPssword = lazy(() => import('./Pages/Account/ForgetPasswordModule/ResetPassword.jsx'));
 
 //? ---------------------------------------------------------------------- Private Page
 // Admin Web
@@ -33,6 +36,9 @@ const Dashboard = lazy(() => import('./Pages/Admin/Dashboard/index'));
 const UserManage = lazy(() => import('./Pages/Admin/UserManage/index'));
 const CompanyManage = lazy(() => import('./Pages/Admin/CompanyManage/index'));
 const NewCompanyManage = lazy(() => import('./Pages/Admin/NewCompanyManage'));
+const FeedbackManage = lazy(() => import('./Pages/Admin/FeedbackManage'));
+const DriverAdminManage = lazy(() => import('./Pages/Admin/DriverManage'));
+const AdvAdminManage = lazy(() => import('./Pages/Admin/AdvertisementManage'));
 
 // Company
 import AuthCompany from './Pages/AdminCompany/AuthWrapper/AuthWrapper.jsx';
@@ -112,6 +118,33 @@ function App() {
                                         element={
                                             <ClientLayout>
                                                 <HomePage style={{ '--base-color': '#ff7a56' }} />
+                                            </ClientLayout>
+                                        }
+                                    />
+
+                                    <Route
+                                        path="/account/forget-password"
+                                        element={
+                                            <ClientLayout>
+                                                <ForgetPassword style={{ '--base-color': '#ff7a56' }} />
+                                            </ClientLayout>
+                                        }
+                                    />
+
+                                    <Route
+                                        path="/account/verify-otp"
+                                        element={
+                                            <ClientLayout>
+                                                <VerifyOtp />
+                                            </ClientLayout>
+                                        }
+                                    />
+
+                                    <Route
+                                        path="/account/reset-password"
+                                        element={
+                                            <ClientLayout>
+                                                <ResetPssword />
                                             </ClientLayout>
                                         }
                                     />
@@ -324,6 +357,12 @@ function App() {
                                     <Route path="/admin/company" element={<CompanyManage />} />
 
                                     <Route path="/admin/new-company" element={<NewCompanyManage />} />
+
+                                    <Route path="/admin/feedback" element={<FeedbackManage />} />
+
+                                    <Route path="/admin/driver" element={<DriverAdminManage />} />
+
+                                    <Route path="/admin/advertisement" element={<AdvAdminManage />} />
                                 </Routes>
                             </Suspense>
                         </AnimatePresence>

@@ -4,24 +4,15 @@ import { CheckCircleOutlined, DeleteFilled, EditOutlined, EyeTwoTone, MailFilled
 import { Empty, message, Select } from 'antd';
 import { Tooltip } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
+import { jwtDecode } from 'jwt-decode';
 
 // components
 
 // services
-import { DataContext } from '../../../../Hooks/context';
-import {
-    deleteCompanyService,
-    deleteDriverService,
-    getCompanyService,
-    getDriverService,
-    getOneDriverService,
-    putCompanyService,
-    putDriverService,
-} from '../../../../Services/apiService';
-import { useMutationHook } from '../../../../Hooks/useMutation';
-import Loading from '../../../../Helper/Loading';
-import { jwtDecode } from 'jwt-decode';
-import ViewDriverProfile from './ViewProfileDriver';
+import { DataContext } from '../../../Hooks/context';
+import { useMutationHook } from '../../../Hooks/useMutation';
+import Loading from '../../../Helper/Loading';
+import { deleteFeedbackService, getFeedbackService } from '../../../Services/apiService';
 
 // Data
 const options = [
@@ -43,32 +34,23 @@ const options = [
     },
 ];
 
-export default function TableDriver({ columns }) {
-    const [drivers, setDrivers] = useState([]);
-    const [openView, setOpenView] = useState(null);
+export default function TableFeedback({ columns }) {
+    const [feedbacks, setFeedbacks] = useState([]);
     const [isCall, setIsCall] = useState(true);
-    const { company } = useContext(DataContext);
-    const [openAdd, setOpenAdd] = useState(false);
     const [loading, setLoading] = useState(false);
 
     // ? ----------------------------- when component mounted -------------------------
-    const tokenStorage = localStorage.getItem('tokenCompany');
-    const { unique_name } = jwtDecode(tokenStorage);
-    
-    const getAllDriverInAdminCompany = () => getOneDriverService(`Driver/company/${unique_name}/drivers`);
+    const getAllFeedback = () => getFeedbackService(`Feedback/GetAllFeedback`);
 
     const { data, isSuccess, isLoading, isPending, isError } = useQuery({
-        queryKey: ['queryDrivers'],
-        queryFn: getAllDriverInAdminCompany,
-        enabled: isCall
+        queryKey: ['queryFeedbacks'],
+        queryFn: getAllFeedback,
+        enabled: isCall,
     });
 
-    console.log(data);
-    
-
     useEffect(() => {
-        if (isSuccess) {         
-            setDrivers(data.drivers);
+        if (isSuccess) {
+            setFeedbacks(data);
             setIsCall(false);
             setLoading(false);
         }
@@ -77,7 +59,7 @@ export default function TableDriver({ columns }) {
         }
         if (isError) {
             setLoading(false);
-            setIsCall(false)
+            setIsCall(false);
         }
     }, [isSuccess, data, isLoading, isPending, isError]);
 
@@ -87,16 +69,16 @@ export default function TableDriver({ columns }) {
     }
 
     // ? ------------------------------- HANDLE DELETE -------------------------
-    const deleteMutation = useMutationHook((props) => deleteDriverService(props));
+    const deleteMutation = useMutationHook((props) => deleteFeedbackService(props));
     const { isSuccess: deleteLocation } = deleteMutation;
 
     const handleDelete = (id) => {
-        deleteMutation.mutate({ url: `Admin/deleteDriver/${id}` });
+        deleteMutation.mutate({ url: `Feedback/DeleteFeedback/${id}` });
     };
 
     useEffect(() => {
         if (deleteLocation) {
-            message.success('Deleted Driver Successfully!');
+            message.success('Deleted Feedback Successfully!');
             setIsCall(true);
         }
     }, [deleteLocation]);
@@ -107,11 +89,11 @@ export default function TableDriver({ columns }) {
     const lastItemIndex = currentPage * itemPerPage;
     const firstItemIndex = lastItemIndex - itemPerPage;
 
-    // const currentItemPage = drivers.slice(firstItemIndex, lastItemIndex);
+    const currentItemPage = feedbacks?.slice(firstItemIndex, lastItemIndex) ?? [];
 
     // handle number paginate
     let pages = [];
-    const totalItems = drivers.length;
+    const totalItems = feedbacks?.length;
     for (let i = 1; i <= Math.ceil(totalItems / itemPerPage); i++) {
         pages.push(i);
     }
@@ -128,50 +110,11 @@ export default function TableDriver({ columns }) {
         setItemPerPage(value);
     };
 
-    // ? ---------------------------------------- HANDLE OPEN VIEW ---------------------------------
-    const [driver, setDriver] = useState(null)
-    const handleOpenView = (id) => {
-        setDriver(id)
-        setOpenView(true)
-    }
-
     // ? ----------------------- HANDLE SEND MAIL -----------------------------------
     const handleSendmail = (email) => {
-        window.location.href = `mailto:${email}`    
-    }
+        window.location.href = `mailto:${email}`;
+    };
 
-    // ? ----------------------- HANDLE ACTIVE ACCOUNT ------------------------------
-    const mutation = useMutationHook((props) => putDriverService(props))
-
-    const { isError: putError, isSuccess: putSuccess, isPending: putPending } = mutation
-
-    const handleActiveAccount = (id) => {
-        const dataUpdate = {
-            isActive: true
-        }
-
-        mutation.mutate({ url: `Admin/updateDriver/${id}`, data: dataUpdate })
-    }
-
-    // handle after put
-    useEffect(() => {
-        if (putSuccess) {
-            message.success("Updated Successfully!")
-            setIsCall(true)
-            setLoading(false)
-        }
-
-        if (putPending) {
-            setLoading(true)
-        }
-    }, [putSuccess, putPending])
-
-    useEffect(() => {
-        if (putError) {
-            message.error("Updated Failed!")
-        }
-    }, [putError])
-    
     return (
         <div className="w-full p-[2rem_.75rem] mx-auto bg-white z-[100] rounded-[1rem]">
             <Loading isLoading={loading}>
@@ -193,43 +136,21 @@ export default function TableDriver({ columns }) {
                             </thead>
 
                             <tbody>
-                                {drivers !== undefined &&
-                                    drivers.length > 0 &&
-                                    drivers.map((item, index) => (
+                                {currentItemPage !== undefined &&
+                                    currentItemPage.length > 0 &&
+                                    currentItemPage.map((item, index) => (
                                         <tr key={index} className="border-b-[1px] hover:bg-[#e8e8e9] px-3">
                                             {rows.map((row) => (
                                                 <td className="py-[.8rem] pl-3">
-                                                    {row !== 'isActive' && item[row]}
-                                                    {row === 'isActive' && item[row] === true && 'Approved'}
-                                                    {row === 'isActive' && item[row] === false && 'Pending approval'}
+                                                    {item[row]}
                                                 </td>
                                             ))}
 
                                             <td className="py-[.8rem]">
-                                                <Tooltip title="Submit Profile">
-                                                    <button
-                                                        className="duration-500 rounded-[50%] p-[.5rem_.6rem] hover:bg-[#b5b5b5]"
-                                                        onClick={() => handleActiveAccount(item.id)}
-                                                    >
-                                                        <CheckCircleOutlined
-                                                            style={{ color: 'green', fontSize: '1.2rem' }}
-                                                        />
-                                                    </button>
-                                                </Tooltip>
-
-                                                <Tooltip title="View Full Profile">
-                                                    <button
-                                                        className="duration-500 rounded-[50%] p-[.5rem_.6rem] hover:bg-[#b5b5b5]"
-                                                        onClick={() => handleOpenView(item.id)}
-                                                    >
-                                                        <EyeTwoTone style={{ fontSize: '1.2rem' }} />
-                                                    </button>
-                                                </Tooltip>
-
                                                 <Tooltip title="Send Mail">
                                                     <button
                                                         className="duration-500 rounded-[50%] p-[.5rem_.6rem] hover:bg-[#b5b5b5]"
-                                                        onClick={() => handleSendmail(item.driverEmail)}
+                                                        onClick={() => handleSendmail(item.email)}
                                                     >
                                                         <MailFilled style={{ fontSize: '1.2rem' }} />
                                                     </button>
@@ -249,7 +170,7 @@ export default function TableDriver({ columns }) {
                                         </tr>
                                     ))}
 
-                                {drivers !== undefined && drivers.length === 0 && (
+                                {currentItemPage !== undefined && currentItemPage.length === 0 && (
                                     <td colSpan={6} className="pt-5">
                                         <Empty />
                                     </td>
@@ -257,7 +178,7 @@ export default function TableDriver({ columns }) {
                             </tbody>
                         </table>
 
-                        {totalItems > 1 && (
+                        {currentItemPage !== null && currentItemPage !== undefined && currentItemPage.length > 0 && (
                             <div className="w-full flex-[0_0_auto] px-[calc(1.5rem/2)] mt-[3rem] flex justify-center items-center">
                                 <div className="flex pl-0">
                                     <button
@@ -302,8 +223,6 @@ export default function TableDriver({ columns }) {
                     </div>
                 </div>
             </Loading>
-
-            <ViewDriverProfile openView={openView} setOpenView={setOpenView} id={driver} />
         </div>
     );
 }

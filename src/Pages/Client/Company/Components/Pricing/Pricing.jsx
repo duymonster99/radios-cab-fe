@@ -115,7 +115,7 @@ const PricingComponent = forwardRef((props, ref) => {
                             <span className="block text-5xl font-bold text-gray-800 mb-3">
                                 ${button === 'Monthly' ? '15' : '40'}
                             </span>
-                            <span className="block text-gray-600 font-medium mb-6">per company, per month</span>
+                            <span className="block text-gray-600 font-medium mb-6">per company, per {button === 'Monthly' ? 'monthly' : 'quarterly'}</span>
                             <button
                                 className="relative group inline-block w-full py-4 px-6 text-center text-gray-800 hover:text-gray-50 bg-yellow-300 font-semibold rounded-full overflow-hidden transition duration-200"
                                 onClick={() => handlePricingStandard()}
@@ -202,13 +202,13 @@ const PricingComponent = forwardRef((props, ref) => {
                         <div className="text-center mb-6">
                             <h5 className="text-2xl font-semibold text-gray-800 mb-3">Plus</h5>
                             <span className="block text-5xl font-bold text-gray-800 mb-3">${button === 'Monthly' ? '25' : '65'}</span>
-                            <span className="block text-gray-600 font-medium mb-6">per company, per month</span>
+                            <span className="block text-gray-600 font-medium mb-6">per company, per {button === 'Monthly' ? 'monthly' : 'quarterly'}</span>
                             <button
                                 className="relative group inline-block w-full py-4 px-6 text-center text-gray-800 hover:text-gray-50 bg-yellow-300 font-semibold rounded-full overflow-hidden transition duration-200"
                                 onClick={() => handlePricingPlus()}
                             >
                                 <div className="absolute top-0 right-full w-full h-full bg-gray-900 transform group-hover:translate-x-full group-hover:scale-102 transition duration-500"></div>
-                                <span className="relative">Start 7-days Trial</span>
+                                <span className="relative">Register Now</span>
                             </button>
                         </div>
                         <ul>
@@ -289,13 +289,13 @@ const PricingComponent = forwardRef((props, ref) => {
                         <div className="text-center mb-6">
                             <h5 className="text-2xl font-semibold text-gray-800 mb-3">Premium</h5>
                             <span className="block text-5xl font-bold text-gray-800 mb-3">${button === 'Monthly' ? '40' : '105'}</span>
-                            <span className="block text-gray-600 font-medium mb-6">per company, per month</span>
+                            <span className="block text-gray-600 font-medium mb-6">per company, per {button === 'Monthly' ? 'monthly' : 'quarterly'}</span>
                             <button
                                 className="relative group inline-block w-full py-4 px-6 text-center text-gray-800 hover:text-gray-50 bg-yellow-300 font-semibold rounded-full overflow-hidden transition duration-200"
                                 onClick={() => handlePricingPremium()}
                             >
                                 <div className="absolute top-0 right-full w-full h-full bg-gray-900 transform group-hover:translate-x-full group-hover:scale-102 transition duration-500"></div>
-                                <span className="relative">Start 7-days Trial</span>
+                                <span className="relative">Register Now</span>
                             </button>
                         </div>
                         <ul>

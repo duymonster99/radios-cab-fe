@@ -4,24 +4,23 @@ import { CheckCircleOutlined, DeleteFilled, EditOutlined, EyeTwoTone, MailFilled
 import { Empty, message, Select } from 'antd';
 import { Tooltip } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
+import { jwtDecode } from 'jwt-decode';
 
 // components
+// import ViewDriverProfile from './ViewProfileDriver';
 
 // services
-import { DataContext } from '../../../../Hooks/context';
+import { DataContext } from '../../../Hooks/context';
 import {
     deleteCompanyService,
     deleteDriverService,
+    getAdminService,
     getCompanyService,
-    getDriverService,
-    getOneDriverService,
     putCompanyService,
     putDriverService,
-} from '../../../../Services/apiService';
-import { useMutationHook } from '../../../../Hooks/useMutation';
-import Loading from '../../../../Helper/Loading';
-import { jwtDecode } from 'jwt-decode';
-import ViewDriverProfile from './ViewProfileDriver';
+} from '../../../Services/apiService';
+import { useMutationHook } from '../../../Hooks/useMutation';
+import Loading from '../../../Helper/Loading';
 
 // Data
 const options = [
@@ -43,32 +42,39 @@ const options = [
     },
 ];
 
-export default function TableDriver({ columns }) {
-    const [drivers, setDrivers] = useState([]);
+export default function TableAds({ columns }) {
+    const [companies, setCompanies] = useState([]);
+    const [ads, setAds] = useState([]);
     const [openView, setOpenView] = useState(null);
     const [isCall, setIsCall] = useState(true);
-    const { company } = useContext(DataContext);
-    const [openAdd, setOpenAdd] = useState(false);
     const [loading, setLoading] = useState(false);
 
     // ? ----------------------------- when component mounted -------------------------
-    const tokenStorage = localStorage.getItem('tokenCompany');
-    const { unique_name } = jwtDecode(tokenStorage);
-    
-    const getAllDriverInAdminCompany = () => getOneDriverService(`Driver/company/${unique_name}/drivers`);
+    const getAllDriverInAdminCompany = () => getCompanyService(`AdminReferenceAction/allCompaniesInfo`);
+    const getAllCompanies = () => getCompanyService(`AdminReferenceAction/allCompaniesInfo`);
 
     const { data, isSuccess, isLoading, isPending, isError } = useQuery({
         queryKey: ['queryDrivers'],
         queryFn: getAllDriverInAdminCompany,
-        enabled: isCall
+        enabled: isCall,
     });
 
-    console.log(data);
-    
+    const {
+        data: getCompanies,
+        isSuccess: getSuccess,
+        isLoading: getLoading,
+        isPending: getPending,
+        isError: getError,
+    } = useQuery({
+        queryKey: ['queryCompanies'],
+        queryFn: getAllCompanies,
+        enabled: isCall,
+    });
 
     useEffect(() => {
-        if (isSuccess) {         
-            setDrivers(data.drivers);
+        if (isSuccess) {
+            // const filterDriverActive = data?.data?.filter((driver) => driver.isActive === true);
+            setAds(data?.data);
             setIsCall(false);
             setLoading(false);
         }
@@ -77,9 +83,27 @@ export default function TableDriver({ columns }) {
         }
         if (isError) {
             setLoading(false);
-            setIsCall(false)
+            setIsCall(false);
         }
     }, [isSuccess, data, isLoading, isPending, isError]);
+
+    useEffect(() => {
+        if (getSuccess) {
+            // const filterCompanyActive = data?.data?.filter((driver) => driver.isActive === true);
+            // console.log(filterCompanyActive);
+
+            setAds(data?.data);
+            setIsCall(false);
+            setLoading(false);
+        }
+        if (getLoading || getPending) {
+            setLoading(true);
+        }
+        if (getError) {
+            setLoading(false);
+            setIsCall(false);
+        }
+    }, [getSuccess, getCompanies, getLoading, getPending, getError]);
 
     let rows = [];
     for (let i = 0; i < columns.length; i++) {
@@ -87,19 +111,19 @@ export default function TableDriver({ columns }) {
     }
 
     // ? ------------------------------- HANDLE DELETE -------------------------
-    const deleteMutation = useMutationHook((props) => deleteDriverService(props));
-    const { isSuccess: deleteLocation } = deleteMutation;
+    const deleteMutation = useMutationHook((props) => deleteCompanyService(props));
+    const { isSuccess: deleteAdv } = deleteMutation;
 
     const handleDelete = (id) => {
-        deleteMutation.mutate({ url: `Admin/deleteDriver/${id}` });
+        deleteMutation.mutate({ url: `AdvertisementImage/delete/${id}` });
     };
 
     useEffect(() => {
-        if (deleteLocation) {
-            message.success('Deleted Driver Successfully!');
+        if (deleteAdv) {
+            message.success('Deleted Advertisement Successfully!');
             setIsCall(true);
         }
-    }, [deleteLocation]);
+    }, [deleteAdv]);
 
     // ? ------------------------------ HANDLE PAGINATE ---------------------------
     const [currentPage, setCurrentPage] = useState(1);
@@ -107,11 +131,11 @@ export default function TableDriver({ columns }) {
     const lastItemIndex = currentPage * itemPerPage;
     const firstItemIndex = lastItemIndex - itemPerPage;
 
-    // const currentItemPage = drivers.slice(firstItemIndex, lastItemIndex);
+    const currentItemPage = ads?.slice(firstItemIndex, lastItemIndex) ?? [];
 
     // handle number paginate
     let pages = [];
-    const totalItems = drivers.length;
+    const totalItems = ads?.length;
     for (let i = 1; i <= Math.ceil(totalItems / itemPerPage); i++) {
         pages.push(i);
     }
@@ -128,50 +152,38 @@ export default function TableDriver({ columns }) {
         setItemPerPage(value);
     };
 
-    // ? ---------------------------------------- HANDLE OPEN VIEW ---------------------------------
-    const [driver, setDriver] = useState(null)
-    const handleOpenView = (id) => {
-        setDriver(id)
-        setOpenView(true)
-    }
+    // ? ----------------------- HANDLE ACTIVE ADV ------------------------------
+    const mutation = useMutationHook((props) => putCompanyService(props));
 
-    // ? ----------------------- HANDLE SEND MAIL -----------------------------------
-    const handleSendmail = (email) => {
-        window.location.href = `mailto:${email}`    
-    }
+    const { isError: putError, isSuccess: putSuccess, isPending: putPending } = mutation;
 
-    // ? ----------------------- HANDLE ACTIVE ACCOUNT ------------------------------
-    const mutation = useMutationHook((props) => putDriverService(props))
-
-    const { isError: putError, isSuccess: putSuccess, isPending: putPending } = mutation
-
-    const handleActiveAccount = (id) => {
+    const handleActiveAdv = (id) => {
         const dataUpdate = {
-            isActive: true
-        }
+            isActive: true,
+        };
 
-        mutation.mutate({ url: `Admin/updateDriver/${id}`, data: dataUpdate })
-    }
+        mutation.mutate({ url: `AdvertisementImage/update/${id}`, data: dataUpdate });
+    };
 
     // handle after put
     useEffect(() => {
         if (putSuccess) {
-            message.success("Updated Successfully!")
-            setIsCall(true)
-            setLoading(false)
+            message.success('Updated Successfully!');
+            setIsCall(true);
+            setLoading(false);
         }
 
         if (putPending) {
-            setLoading(true)
+            setLoading(true);
         }
-    }, [putSuccess, putPending])
+    }, [putSuccess, putPending]);
 
     useEffect(() => {
         if (putError) {
-            message.error("Updated Failed!")
+            message.error('Updated Failed!');
         }
-    }, [putError])
-    
+    }, [putError]);
+
     return (
         <div className="w-full p-[2rem_.75rem] mx-auto bg-white z-[100] rounded-[1rem]">
             <Loading isLoading={loading}>
@@ -193,63 +205,59 @@ export default function TableDriver({ columns }) {
                             </thead>
 
                             <tbody>
-                                {drivers !== undefined &&
-                                    drivers.length > 0 &&
-                                    drivers.map((item, index) => (
-                                        <tr key={index} className="border-b-[1px] hover:bg-[#e8e8e9] px-3">
-                                            {rows.map((row) => (
-                                                <td className="py-[.8rem] pl-3">
-                                                    {row !== 'isActive' && item[row]}
-                                                    {row === 'isActive' && item[row] === true && 'Approved'}
-                                                    {row === 'isActive' && item[row] === false && 'Pending approval'}
-                                                </td>
+                                {currentItemPage.length > 0 &&
+                                    currentItemPage.map((item, index) => (
+                                        <>
+                                            {item.advertisements.map((image) => (
+                                                <tr key={index} className="border-b-[1px] hover:bg-[#e8e8e9] px-3">
+                                                    <td>{image.id}</td>
+
+                                                    <td className="py-2">
+                                                        <img className="w-[100px]" src={image.imageUrl} alt="" />
+                                                    </td>
+
+                                                    <td>{image.description}</td>
+
+                                                    <td>{item.companyName}</td>
+
+                                                    <td className="py-[.8rem]">
+                                                        <Tooltip title="Disactive Driver">
+                                                            <button
+                                                                className="duration-500 rounded-[50%] p-[.5rem_.6rem] hover:bg-[#b5b5b5]"
+                                                                onClick={() => handleActiveAdv(item.id)}
+                                                            >
+                                                                <CheckCircleOutlined
+                                                                    style={{ color: 'green', fontSize: '1.2rem' }}
+                                                                />
+                                                            </button>
+                                                        </Tooltip>
+
+                                                        <Tooltip title="Send Mail">
+                                                            <button
+                                                                className="duration-500 rounded-[50%] p-[.5rem_.6rem] hover:bg-[#b5b5b5]"
+                                                                onClick={() => handleSendmail(item.driverEmail)}
+                                                            >
+                                                                <MailFilled style={{ fontSize: '1.2rem' }} />
+                                                            </button>
+                                                        </Tooltip>
+
+                                                        <Tooltip title="Delete">
+                                                            <button
+                                                                className="duration-500 rounded-[50%] p-[.5rem_.6rem] hover:bg-[#b5b5b5]"
+                                                                onClick={() => handleDelete(item.id)}
+                                                            >
+                                                                <DeleteFilled
+                                                                    style={{ color: '#dc3545', fontSize: '1.2rem' }}
+                                                                />
+                                                            </button>
+                                                        </Tooltip>
+                                                    </td>
+                                                </tr>
                                             ))}
-
-                                            <td className="py-[.8rem]">
-                                                <Tooltip title="Submit Profile">
-                                                    <button
-                                                        className="duration-500 rounded-[50%] p-[.5rem_.6rem] hover:bg-[#b5b5b5]"
-                                                        onClick={() => handleActiveAccount(item.id)}
-                                                    >
-                                                        <CheckCircleOutlined
-                                                            style={{ color: 'green', fontSize: '1.2rem' }}
-                                                        />
-                                                    </button>
-                                                </Tooltip>
-
-                                                <Tooltip title="View Full Profile">
-                                                    <button
-                                                        className="duration-500 rounded-[50%] p-[.5rem_.6rem] hover:bg-[#b5b5b5]"
-                                                        onClick={() => handleOpenView(item.id)}
-                                                    >
-                                                        <EyeTwoTone style={{ fontSize: '1.2rem' }} />
-                                                    </button>
-                                                </Tooltip>
-
-                                                <Tooltip title="Send Mail">
-                                                    <button
-                                                        className="duration-500 rounded-[50%] p-[.5rem_.6rem] hover:bg-[#b5b5b5]"
-                                                        onClick={() => handleSendmail(item.driverEmail)}
-                                                    >
-                                                        <MailFilled style={{ fontSize: '1.2rem' }} />
-                                                    </button>
-                                                </Tooltip>
-
-                                                <Tooltip title="Delete">
-                                                    <button
-                                                        className="duration-500 rounded-[50%] p-[.5rem_.6rem] hover:bg-[#b5b5b5]"
-                                                        onClick={() => handleDelete(item.id)}
-                                                    >
-                                                        <DeleteFilled
-                                                            style={{ color: '#dc3545', fontSize: '1.2rem' }}
-                                                        />
-                                                    </button>
-                                                </Tooltip>
-                                            </td>
-                                        </tr>
+                                        </>
                                     ))}
 
-                                {drivers !== undefined && drivers.length === 0 && (
+                                {currentItemPage !== undefined && currentItemPage.length === 0 && (
                                     <td colSpan={6} className="pt-5">
                                         <Empty />
                                     </td>
@@ -257,7 +265,7 @@ export default function TableDriver({ columns }) {
                             </tbody>
                         </table>
 
-                        {totalItems > 1 && (
+                        {currentItemPage !== null && currentItemPage !== undefined && currentItemPage.length > 0 && (
                             <div className="w-full flex-[0_0_auto] px-[calc(1.5rem/2)] mt-[3rem] flex justify-center items-center">
                                 <div className="flex pl-0">
                                     <button
@@ -303,7 +311,7 @@ export default function TableDriver({ columns }) {
                 </div>
             </Loading>
 
-            <ViewDriverProfile openView={openView} setOpenView={setOpenView} id={driver} />
+            {/* <ViewDriverProfile openView={openView} setOpenView={setOpenView} id={driver} /> */}
         </div>
     );
 }

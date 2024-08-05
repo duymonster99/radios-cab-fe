@@ -82,7 +82,7 @@ export default function LoginDriver(props) {
                         sessionStorage.setItem('company', saveId)
                         navigate('/app-driver/additional-profile');
                     } 
-                    else if(data?.driver?.isActive === true) {
+                    else if(data?.driver?.isActive === false) {
                         message.success('Login Successfully!');
                         navigate('/app-driver/dashboard');
                     }
