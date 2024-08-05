@@ -1,22 +1,77 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 // Libraries
 import { SearchOutlined } from '@ant-design/icons';
 
 // Components
-import Sidebar from '../../../Components/SidebarClient/SidebarClient';
 import CardDriver from './CardDriver';
 import { getCompanyService } from '../../../Services/apiService';
+import { Radio, Space } from 'antd';
 
 // Data
-const DataSidebarFilter = () => {
-    const [companies, setCompanies] = useState([])
+const DataSidebarFilter = ({ selectCompany, setSelectCompany }) => {
+    const [companies, setCompanies] = useState([]);
+    const [value, setValue] = useState(0);
 
     // ? ==================== GET API ====================
-    const getCompanies = () => getCompanyService('')
-}
+    const getCompanies = () => getCompanyService('AdminReferenceAction/allCompaniesInfo');
+
+    const { data, isSuccess } = useQuery({
+        queryKey: ['queryCompanies'],
+        queryFn: getCompanies,
+        retry: false,
+    });
+
+    useEffect(() => {
+        if (isSuccess) {
+            setCompanies(data?.data);
+        }
+    }, [isSuccess]);
+
+    // ? ================== HANDLE CHANGE FILTER ===============
+    const onChange = (e) => {
+        setValue(e.target.value);
+    };
+
+    useEffect(() => {
+        if (value !== 0) {
+            setSelectCompany(value);
+        }
+        else {
+            setSelectCompany(null)
+        }
+    }, [value]);
+
+    return (
+        <div className="w-full row-child">
+            <div className="mb-[1rem]">
+                <h4 className="text-[calc(1.275rem+0.3vw)] xl:text-[1.5rem] text-black">Filter By Company</h4>
+                <div
+                    id="scrollableDiv"
+                    style={{
+                        height: 400,
+                        overflowY: 'auto',
+                    }}
+                    className="flex flex-col text-left"
+                >
+                    <Radio.Group onChange={onChange} value={value}>
+                        <Space direction="vertical">
+                            <Radio value={0}>Select All</Radio>
+                            {companies !== null &&
+                                companies !== undefined &&
+                                companies.map((item, index) => <Radio value={item.id}>{item.companyName}</Radio>)}
+                        </Space>
+                    </Radio.Group>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const DriverClient = (props) => {
+    const [selectCompany, setSelectCompany] = useState(null);   
+
     return (
         <div style={props.style}>
             <div className="w-full px-[.75rem] mx-auto py-[3rem]">
@@ -64,13 +119,16 @@ const DriverClient = (props) => {
 
                             <div className="row mb-[100px]">
                                 <div className="w-full row-child lg:w-[25%] lg:flex-[0_0_auto]">
-                                    <Sidebar />
+                                    <DataSidebarFilter
+                                        selectCompany={selectCompany}
+                                        setSelectCompany={setSelectCompany}
+                                    />
                                 </div>
 
                                 <div className="shrink-0 w-full max-w-full px-[.75rem] mt-[1.5rem] lg:w-[75%]">
                                     <div className="flex justify-start">
                                         <div className="sm:w-[50%] sm:flex-[0_0_auto] lg:w-[33.3333%] lg:flex-[0_0_auto] w-full mt-[1.5rem] px-[.75rem] flex gap-5">
-                                            <CardDriver />
+                                            <CardDriver selectCompany={selectCompany} />
                                         </div>
                                     </div>
                                 </div>

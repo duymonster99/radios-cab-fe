@@ -1,10 +1,14 @@
+// Libraries
 import { FileDoneOutlined, UserOutlined } from '@ant-design/icons';
-import { faBagShopping, faBars, faMagnifyingGlass, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faMagnifyingGlass, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Logout } from '@mui/icons-material';
 import { Avatar, Dropdown, Space } from 'antd';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+
+// images
+import Logo from '../../Assets/img/Logo.jpg'
 
 const items = [
     {
@@ -67,7 +71,7 @@ export default function HeaderLayout() {
                         to=""
                         className="text-[#81c408] font-bold py-[.3125rem] mr-[1rem] text-[calc(1.375rem+1.5vw)] xl:text-[2rem]"
                     >
-                        <h1 className="text-[#81c408]">Logo</h1>
+                        <img width={80} src={Logo} alt='Logo' />
                     </Link>
                     <button
                         className="h-auto text-[rgba(0,0,0,.55)] border border-[rgba(0,0,0,.1)] text-[1.25rem] rounded-[10px] p-[.5rem_1rem] leading-[1] transition-all duration-[.15s] ease-in-out xl:hidden"

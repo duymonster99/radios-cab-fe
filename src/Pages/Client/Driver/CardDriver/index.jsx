@@ -12,36 +12,42 @@ import classNames from 'classnames/bind';
 import { useNavigate } from 'react-router-dom';
 const cn = classNames.bind(styled);
 
-export default function CardDriver() {
+export default function CardDriver({ selectCompany }) {
     const [drivers, setDrivers] = useState([]);
     const [shouldFetchApi, setShouldFetchApi] = useState(true);
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     // ? ====================================== handle get company ==================================
     const getDrivers = () => getDriverService('Admin/getAllDrivers');
     const { data, isSuccess } = useQuery({
         queryKey: ['getDrivers'],
         queryFn: getDrivers,
-        enabled: shouldFetchApi,
-    });
+        retry: false
+    });    
 
     useEffect(() => {
         if (isSuccess) {
-            setDrivers(data);
+            if (selectCompany === null) {
+                setDrivers(data);
+            } else {
+                const filterByCompanyId = data.filter((driver) => driver.companyId === selectCompany);
+                setDrivers(filterByCompanyId);
+            }
+            
             setShouldFetchApi(false);
         }
-    }, [data, isSuccess]);
+    }, [data, isSuccess, selectCompany]);
 
     // ? ================================== handle navigate ============================================
     const handleNavigate = (id) => {
-        navigate("/driver-detail", { state: { id: `${id}` } })
-    }
+        navigate('/driver-detail', { state: { id: `${id}` } });
+    };
 
     return (
         <>
             {drivers.map((item, index) => (
                 <button key={index} onClick={() => handleNavigate(item.id)}>
-                    <div className={cn('card-container')} >
+                    <div className={cn('card-container')}>
                         <div className={cn('card')}>
                             <div className={cn('img-content')}>
                                 <svg
@@ -64,7 +70,7 @@ export default function CardDriver() {
                             </div>
                         </div>
 
-                        <div className={cn("title")}>
+                        <div className={cn('title')}>
                             <h4 className="text-3xl text-black font-bold">{item.driverFullName}</h4>
                             <p className="mt-3">
                                 <Rate disabled defaultValue={4.5} allowHalf />
@@ -75,7 +81,9 @@ export default function CardDriver() {
             ))}
 
             {drivers.length === 0 && (
-                <div className='flex mx-auto items-center'><Empty /></div>
+                <div className="flex mx-auto items-center">
+                    <Empty />
+                </div>
             )}
         </>
     );
