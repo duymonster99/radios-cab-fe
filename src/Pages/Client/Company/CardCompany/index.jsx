@@ -33,7 +33,6 @@ export default function CardCompany({ setLoadingPage, selectLocation }) {
                 const companyFilterByLocation = getData.data.filter((data) =>
                     data.companyLocationServices.some((service) => service.cityService === selectLocation),
                 );
-                // console.log(companyFilterByLocation);
 
                 setCompanies(companyFilterByLocation);
             }

@@ -41,6 +41,13 @@ const DataProvider = ({ children }) => {
 };
 
 export default function FeedbackDriverLayout() {
+    const columns = [
+        { accessorKey: 'id', header: 'Id' },
+        { accessorKey: 'name', header: 'User Name' },
+        { accessorKey: 'email', header: 'Email' },
+        { accessorKey: 'content', header: 'Description' },
+    ];
+    
     return (
         <DataProvider>
             <AdminLayout>

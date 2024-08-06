@@ -6,7 +6,7 @@ import { Tooltip } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 
 // components
-import AddType from './FormCreate';
+import CreateAdvs from './FormCreate';
 
 // services
 import { DataContext } from '../../../Hooks/context';
@@ -14,32 +14,11 @@ import { deleteCompanyService, getCompanyService, putCompanyService } from '../.
 import { useMutationHook } from '../../../Hooks/useMutation';
 import Loading from '../../../Helper/Loading';
 
-// Data
-const options = [
-    {
-        label: 'Two Wheeler Service',
-        value: 'Two Wheeler Service',
-        desc: 'Two Wheeler Service',
-    },
-    {
-        label: 'Four Seater Car Service',
-        value: 'Four Seater Car Service',
-        desc: 'Four Seater Car Service',
-    },
-    {
-        label: 'Seven Seater Car Service',
-        value: 'Seven Seater Car Service',
-        desc: 'Seven Seater Car Service',
-    },
-];
 
-export default function TableCompanyType({ columns }) {
+export default function TableAdv({ columns }) {
     const [loading, setLoading] = useState(false)
-    const [serviceType, setServiceType] = useState([]);
+    const [advs, setAdvs] = useState([]);
     const [openForm, setOpenForm] = useState(null);
-    const [values, setValues] = useState({
-        serviceType: '',
-    });
     const [isCall, setIsCall] = useState(true);
     const { company } = useContext(DataContext);
     const [openAdd, setOpenAdd] = useState(false);
@@ -57,7 +36,7 @@ export default function TableCompanyType({ columns }) {
     };
 
     // ? ----------------------------- when component mounted -------------------------
-    const getCompanyInType = () => getCompanyService(`CompanyService/company/${company.id}/services`);
+    const getCompanyInType = () => getCompanyService(`AdvertisementImage/company/${company.id}/images`);
 
     const { data, isSuccess, isLoading, isPending } = useQuery({
         queryKey: ['querytyoe'],
@@ -67,7 +46,7 @@ export default function TableCompanyType({ columns }) {
 
     useEffect(() => {
         if (isSuccess) {
-            setServiceType(data.data);
+            setAdvs(data);
             setIsCall(false);
             setLoading(false)
         }
@@ -81,12 +60,6 @@ export default function TableCompanyType({ columns }) {
         rows.push(columns[i].accessorKey);
     }
 
-    // ? ----------------------------- handle data select -------------------------
-    const handleChange = (value) => {
-        setValues({
-            serviceType: value,
-        });
-    };
 
     // ? --------------------- handle submit EDIT ------------------------------
     const mutation = useMutationHook((props) => putCompanyService(props));
@@ -110,12 +83,12 @@ export default function TableCompanyType({ columns }) {
     const { isSuccess: deleteType } = deleteMutation;
 
     const handleDelete = (id) => {
-        deleteMutation.mutate({ url: `CompanyService/delete/${id}` });
+        deleteMutation.mutate({ url: `AdvertisementImage/delete/${id}` });
     };
 
     useEffect(() => {
         if (deleteType) {
-            message.success('Deleted Service Type Successfully!');
+            message.success('Deleted Advertisement Successfully!');
             setIsCall(true);
         }
     }, [deleteType]);
@@ -125,7 +98,7 @@ export default function TableCompanyType({ columns }) {
             <Loading isLoading={loading}>
                 <div className="w-[90%] p-[1rem_.75rem] mx-auto">
                     <div className="overflow-x-auto">
-                        {buttonAdd()}
+                        {advs.length < 2 && buttonAdd()}
 
                         <table className="w-full mb-[1rem] text-[rgb(116,125,136)] vertical-top text-left">
                             <thead className="vertical-bottom border-b-[1px] border-[#000] text-[#000]">
@@ -143,52 +116,20 @@ export default function TableCompanyType({ columns }) {
                             </thead>
 
                             <tbody>
-                                {serviceType !== undefined &&
-                                    serviceType.length > 0 &&
-                                    serviceType.map((item, index) => (
+                                {advs !== undefined &&
+                                    advs.length > 0 &&
+                                    advs.map((item, index) => (
                                         <tr key={index} className="border-b-[1px] hover:bg-[#e8e8e9] px-3">
                                             {rows.map((row) => (
                                                 <td className="py-[.8rem] pl-3">
-                                                    {row !== 'serviceType' && item[row]}
-                                                    {openForm === index && row === 'serviceType' && (
-                                                        <Select
-                                                            style={{
-                                                                width: '50%',
-                                                            }}
-                                                            defaultValue={item.serviceType}
-                                                            onChange={handleChange}
-                                                            options={options}
-                                                        ></Select>
+                                                    {row !== 'imageUrl' && item[row]}
+                                                    {row === 'imageUrl' && (
+                                                        <img className='w-[100px] h-[100px]' src={item[row]} alt='banner' />
                                                     )}
-
-                                                    {openForm !== index && row === 'serviceType' && item[row]}
                                                 </td>
                                             ))}
 
                                             <td className="py-[.8rem]">
-                                                {openForm !== index ? (
-                                                    <Tooltip title="Edit">
-                                                        <button
-                                                            className="duration-500 rounded-[50%] p-[.5rem_.6rem] hover:bg-[#b5b5b5]"
-                                                            onClick={() => setOpenForm(index)}
-                                                        >
-                                                            <EditOutlined style={{ fontSize: '1.2rem' }} />
-                                                        </button>
-                                                    </Tooltip>
-                                                ) : (
-                                                    <Tooltip title="Submit Edit">
-                                                        <button
-                                                            className="duration-500 rounded-[50%] p-[.5rem_.6rem] hover:bg-[#b5b5b5]"
-                                                            onClick={() => handleSubmit(item.id)}
-                                                        >
-                                                            <CheckCircleOutlined
-                                                                className="text-green-500"
-                                                                style={{ fontSize: '1.2rem' }}
-                                                            />
-                                                        </button>
-                                                    </Tooltip>
-                                                )}
-
                                                 <Tooltip title="Delete" zIndex={1000}>
                                                     <button
                                                         className="duration-500 rounded-[50%] p-[.5rem_.6rem] hover:bg-[#b5b5b5]"
@@ -203,13 +144,13 @@ export default function TableCompanyType({ columns }) {
                                         </tr>
                                     ))}
 
-                                {serviceType !== undefined && serviceType.length === 0 && (
+                                {advs !== undefined && advs.length === 0 && (
                                     <td colSpan={6} className="pt-5">
                                         <Empty />
                                     </td>
                                 )}
 
-                                <AddType
+                                <CreateAdvs
                                     openAdd={openAdd}
                                     setOpenAdd={setOpenAdd}
                                     cid={company?.id}

@@ -21,7 +21,11 @@ export const getOneCompanyService = async (apiUrl) => {
 };
 
 export const putCompanyService = async ({ url, data }) => {
-    const response = await axios.put(`${apiServiceCompany}/${url}`, data);
+    const response = await axios.put(`${apiServiceCompany}/${url}`, data, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
     return response.data;
 };
 

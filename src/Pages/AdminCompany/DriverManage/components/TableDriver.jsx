@@ -63,9 +63,6 @@ export default function TableDriver({ columns }) {
         enabled: isCall
     });
 
-    console.log(data);
-    
-
     useEffect(() => {
         if (isSuccess) {         
             setDrivers(data.drivers);

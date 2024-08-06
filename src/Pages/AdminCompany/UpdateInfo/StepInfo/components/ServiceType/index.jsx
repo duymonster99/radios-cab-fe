@@ -78,8 +78,8 @@ export default function ServiceType({ stateBtn, setStateBtn, current, setCurrent
 
     // ? ============================================ fetch api ==========================================
     // get id company
-    const tokenStorage = sessionStorage.getItem('companyInfo');
-    const cid = JSON.parse(tokenStorage);
+    const tokenStorage = sessionStorage.getItem('pricingInfo');
+    const {cid} = JSON.parse(tokenStorage);
 
     const [typeSubmit, setTypeSubmit] = useState([]);
 
@@ -118,6 +118,9 @@ export default function ServiceType({ stateBtn, setStateBtn, current, setCurrent
             setLoading(true);
         }
     }, [isSuccess, isPending]);
+
+    console.log(mutationType);
+    
 
     return (
         <div className="w-[60%] mx-auto block text-lg">

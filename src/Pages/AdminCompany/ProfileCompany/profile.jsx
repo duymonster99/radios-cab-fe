@@ -36,9 +36,9 @@ export default function ProfileCompany() {
         }
     }, [data, isSuccess])
 
-    // const { company } = useContext(DataContext)
-
     const addressDetails = `${company.companyAddress}, ${company.companyWard}, ${company.companyDistrict}, ${company.companyCity}`
+
+    const fileAvatar = company.companyImageUrl
 
     return (
         <div className="bg-gray-100">
@@ -48,7 +48,7 @@ export default function ProfileCompany() {
                         <div className="bg-white shadow rounded-lg p-6">
                             <div className="flex flex-col items-center">
                                 <img
-                                    src="https://randomuser.me/api/portraits/men/94.jpg"
+                                    src={fileAvatar}
                                     className="w-32 h-32 bg-gray-300 rounded-full mb-4 shrink-0"
                                     alt=""
                                 ></img>

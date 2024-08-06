@@ -32,8 +32,6 @@ export default function Payment() {
         );
         const latestPayment = data.data[data.data.length - 1];
 
-        console.log(latestPayment);
-
         const sessionSuccess = {
             paymentDate: latestPayment['Ngày diễn ra'],
             transactionValue: membershipInfo.amount,

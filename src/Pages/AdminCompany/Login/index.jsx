@@ -72,7 +72,7 @@ export default function LoginCompany(props) {
     // ? ====================================================== handle after submit form ====================================
     useEffect(() => {
         if (isSuccess) {
-            message.info('Please complete profile to login admin');
+            message.success('Welcome to admin page!');
             const token = data?.token;
 
             localStorage.setItem('tokenCompany', token);
@@ -80,17 +80,10 @@ export default function LoginCompany(props) {
             if (token) {
                 const access_token = jwtDecode(token);
 
-                if (access_token?.role === 'Company' && access_token?.unique_name !== '') {
-                    const idJson = JSON.stringify(data?.company?.id);
-                    sessionStorage.setItem('companyInfo', idJson);
-
-                    if (data?.company?.isActive === false) {
-                        navigate('/admin-company/additional-profile');
-                    } else {
-                        navigate('/admin-company');
-                    }
+                if (data?.company?.isActive === false) {
+                    message.error('Sorry! Your account is disactive. Please contact super admin.');
                 } else {
-                    message.error('Please login with company account!');
+                    navigate('/admin-company');
                 }
             }
         } else if (isError) {

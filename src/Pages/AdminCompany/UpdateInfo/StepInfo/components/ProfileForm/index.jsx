@@ -6,6 +6,9 @@ import { getProvincesWithDetail } from 'vietnam-provinces';
 // services
 import { useMutationHook } from '../../../../../../Hooks/useMutation';
 import { putCompanyService } from '../../../../../../Services/apiService';
+import { PlusOutlined } from '@ant-design/icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 export default function FormEditProfile({ stateBtn, setStateBtn, current, setCurrent, setLoading }) {
     // ? ----------------------------------------- deps
@@ -15,10 +18,11 @@ export default function FormEditProfile({ stateBtn, setStateBtn, current, setCur
     const [shouldFetched, setShouldFetched] = useState(false);
     const dataStorage = sessionStorage.getItem('profileInfo');
     const profileInfo = JSON.parse(dataStorage);
+    const [fileList, setFileList] = useState([]);
 
     // ? ----------------------------------------- check session storage profile info -----------------------------
     if (profileInfo !== null && profileInfo !== undefined && profileInfo !== '') {
-        setCurrent(current + 1)
+        setCurrent(current + 1);
     }
 
     const [provinceSelectValue, setProvinceSelectValue] = useState({
@@ -136,6 +140,30 @@ export default function FormEditProfile({ stateBtn, setStateBtn, current, setCur
         }));
     }, [provinceSelectValue, districtSelectValue, wardSelectValue]);
 
+    // ? ---------------------- handle upload file ------------------------------
+    const handleUploadImage = (e) => {
+        const files = e.target.files;
+        setFileList(files);
+    };
+
+    const handleDeleteImage = () => {
+        setFileList([]);
+    };
+
+    // ? --------------------- create button upload ------------------------------
+    const uploadButton = (
+        <label
+            className="h-[100px] w-[100px] flex flex-col justify-center items-center cursor-pointer border-2 border-dashed border-[#cacaca] bg-[rgba(255,255,255,1)] p-[1.5rem] rounded-xl"
+            for="file"
+        >
+            <PlusOutlined className="text-gray-500" />
+            <div className="flex items-center">
+                <span className='font-["Open_Sans"] text-gray-500'>Upload</span>
+            </div>
+            <input type="file" id="file" accept="image/*" className="hidden" onChange={handleUploadImage} />
+        </label>
+    );
+
     // ? ======================================================== handle next =============================================
     useEffect(() => {
         if (stateBtn === 'next') {
@@ -186,17 +214,28 @@ export default function FormEditProfile({ stateBtn, setStateBtn, current, setCur
     }, [stateBtn]);
 
     // get id company
-    const tokenStorage = sessionStorage.getItem('companyInfo');
-    const cid = JSON.parse(tokenStorage)
+    const tokenStorage = sessionStorage.getItem('pricingInfo');
+    const { cid } = JSON.parse(tokenStorage);
+    const formData = new FormData();
 
     const mutationProfile = useMutationHook((props) => putCompanyService(props));
     const { isSuccess, isPending } = mutationProfile;
 
     useEffect(() => {
         if (shouldFetched) {
+            const arrayImage = [...fileList];
+
+            arrayImage.map((image) => {
+                formData.append('companyImage', image);
+            });
+
+            Object.keys(formSubmit).forEach((key) => {
+                formData.append(key, formSubmit[key]);
+            });
+
             mutationProfile.mutate({
                 url: `CompanyInfoUpdate/company/${cid}/update`,
-                data: formSubmit,
+                data: formData,
             });
 
             setShouldFetched(false);
@@ -205,9 +244,9 @@ export default function FormEditProfile({ stateBtn, setStateBtn, current, setCur
 
     // ? ============================================ handle after complete profile ===========================
     useEffect(() => {
-        if (isSuccess) {           
-            const profileJson = JSON.stringify(formSubmit)
-            sessionStorage.setItem("profileInfo", profileJson)
+        if (isSuccess) {
+            const profileJson = JSON.stringify(formSubmit);
+            sessionStorage.setItem('profileInfo', profileJson);
             setCurrent(current + 1);
             setLoading(false);
         }
@@ -215,6 +254,8 @@ export default function FormEditProfile({ stateBtn, setStateBtn, current, setCur
             setLoading(true);
         }
     }, [isSuccess, isPending]);
+
+    console.log(mutationProfile);
 
     return (
         <div className="block w-[60%] mx-auto text-lg">
@@ -370,6 +411,34 @@ export default function FormEditProfile({ stateBtn, setStateBtn, current, setCur
                         <p className="ml-2 text-red-500">{errorMessage.companyAddress}</p>
                     )}
                 </div>
+            </div>
+
+            <div className="block mb-4">
+                <label>
+                    <span className="text-red-600">* </span>Avatar
+                </label>
+                {fileList.length === 0 && uploadButton}
+                {fileList.length > 0 && (
+                    <>
+                        {[...fileList].map((item, index) => (
+                            <div className="relative w-[130px] h-[130px] rounded-[10px] border-2 border-dashed group">
+                                <img
+                                    key={index}
+                                    src={URL.createObjectURL(item)}
+                                    className="absolute top-0 rounded-[10px]"
+                                    alt=""
+                                />
+                                <button
+                                    className="absolute top-[50%] -translate-y-[50%] z-[100] left-[50%] -translate-x-[50%] text-red-600 hidden group-hover:block transition-all duration-0"
+                                    onClick={handleDeleteImage}
+                                >
+                                    <FontAwesomeIcon icon={faTrash} />
+                                </button>
+                                <div className="absolute top-0 left-0 w-full h-full bg-slate-50 hidden group-hover:block"></div>
+                            </div>
+                        ))}
+                    </>
+                )}
             </div>
         </div>
     );

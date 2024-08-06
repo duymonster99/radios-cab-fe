@@ -1,4 +1,4 @@
-import { Button, Result } from 'antd';
+import { Button, message, Result } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -15,8 +15,8 @@ export default function SuccessPayment() {
         let timerId = setInterval(() => setCount(count - 1), 1000)
 
         if (count === 0) {
-            sessionStorage.clear()
-            navigate("/login/company")
+            message.info("Payment Success! Complete Profile Now!")
+            navigate("/admin-company/additional-profile")
         }
 
         return () => clearInterval(timerId)

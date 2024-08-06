@@ -34,7 +34,7 @@ const NavSidebar = () => {
 };
 
 export default function SideBar() {
-    const { nameSidebar } = useContext(DataContext)
+    const { nameSidebar, company } = useContext(DataContext)
 
     return (
         <div
@@ -51,7 +51,7 @@ export default function SideBar() {
                     target="_blank"
                 >
                     <img
-                        src=""
+                        src={company.companyImageUrl}
                         className="inline h-full max-w-full transition-all duration-200 max-h-[2rem] vertical-middle"
                         alt=""
                     />

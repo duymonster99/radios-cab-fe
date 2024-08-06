@@ -49,6 +49,7 @@ const CompanyProfile = lazy(() => import('./Pages/AdminCompany/ProfileCompany'))
 const CompanyManageDriver = lazy(() => import('./Pages/AdminCompany/DriverManage'));
 const CompanyServiceType = lazy(() => import('./Pages/AdminCompany/ServiceTypeManage'));
 const CompanyLocation = lazy(() => import('./Pages/AdminCompany/LocationManage'));
+const CompanyAdv = lazy(() => import('./Pages/AdminCompany/Advertisement'));
 
 // Driver
 import AuthDriver from './Pages/Driver/AuthWrapper/AuthWrapper.jsx';
@@ -245,6 +246,19 @@ function App() {
                                     />
 
                                     {/* Supper Admin */}
+                                    <Route path="/admin" element={<Dashboard />} />
+
+                                    <Route path="/admin/user" element={<UserManage />} />
+
+                                    <Route path="/admin/company" element={<CompanyManage />} />
+
+                                    <Route path="/admin/new-company" element={<NewCompanyManage />} />
+
+                                    <Route path="/admin/feedback" element={<FeedbackManage />} />
+
+                                    <Route path="/admin/driver" element={<DriverAdminManage />} />
+
+                                    <Route path="/admin/advertisement" element={<AdvAdminManage />} />
 
                                     {/* Admin company */}
                                     <Route
@@ -301,6 +315,15 @@ function App() {
                                         }
                                     />
 
+                                    <Route
+                                        path="/admin-company/advertisement"
+                                        element={
+                                            <AuthCompany path="/admin-company/advertisement">
+                                                <CompanyAdv />
+                                            </AuthCompany>
+                                        }
+                                    />
+
                                     {/* Admin Driver */}
                                     <Route
                                         path="/login/driver"
@@ -346,23 +369,6 @@ function App() {
                                             </AuthDriver>
                                         }
                                     />
-                                </Routes>
-
-                                {/* Super Admin route */}
-                                <Routes>
-                                    <Route path="/admin" element={<Dashboard />} />
-
-                                    <Route path="/admin/user" element={<UserManage />} />
-
-                                    <Route path="/admin/company" element={<CompanyManage />} />
-
-                                    <Route path="/admin/new-company" element={<NewCompanyManage />} />
-
-                                    <Route path="/admin/feedback" element={<FeedbackManage />} />
-
-                                    <Route path="/admin/driver" element={<DriverAdminManage />} />
-
-                                    <Route path="/admin/advertisement" element={<AdvAdminManage />} />
                                 </Routes>
                             </Suspense>
                         </AnimatePresence>

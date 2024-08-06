@@ -1,5 +1,5 @@
 import { CloseOutlined } from '@ant-design/icons';
-import { Button, Select, Space } from 'antd';
+import { Button, message, Select, Space } from 'antd';
 import { useEffect, useState } from 'react';
 import { getProvincesWithDetail } from 'vietnam-provinces';
 import { useMutationHook } from '../../../../../../Hooks/useMutation';
@@ -86,8 +86,8 @@ export default function ServiceLocation({ stateBtn, setLoading }) {
 
     // ? ================================================= add database =======================================
     // get id company
-    const tokenStorage = sessionStorage.getItem('companyInfo');
-    const cid = JSON.parse(tokenStorage);
+    const tokenStorage = sessionStorage.getItem('pricingInfo');
+    const {cid} = JSON.parse(tokenStorage);
 
     // get data
     const [locationSubmit, setLocationSubmit] = useState([]);
@@ -102,16 +102,10 @@ export default function ServiceLocation({ stateBtn, setLoading }) {
         }
     }, [listLocation]);
 
-    const profileSubmit = {
-        isActive: true
-    }
-
     // create method
     const mutationLocation = useMutationHook((props) => postCompanyService(props));
-    const mutationProfile = useMutationHook((props) => putCompanyService(props));
 
     // load state
-    const { isSuccess: profileSuccess, isPending: profilePending, data } = mutationProfile;
     const { isSuccess: locationSuccess, isPending: locationPending } = mutationLocation;
 
     useEffect(() => {
@@ -123,26 +117,21 @@ export default function ServiceLocation({ stateBtn, setLoading }) {
                     url: 'CompanyLocation/company/location',
                     data: locationSubmit,
                 });
-                mutationProfile.mutate({
-                    url: `CompanyInfoUpdate/company/${cid}/update`,
-                    data: profileSubmit,
-                });
             }
         }
     }, [stateBtn]);
 
     useEffect(() => {
-        if (locationSuccess && profileSuccess) {
+        if (locationSuccess) {
             sessionStorage.clear();
-            if (data.data.isActive === true) {
-                navigate('/admin-company');
-            }
+            message.success("Congratulations you have completed the account registration process. Please wait for your account to be verified.")
+            navigate('/login/company');
         }
 
-        if (locationPending || profilePending) {
+        if (locationPending ) {
             setLoading(true);
         }
-    }, [locationSuccess, locationPending, profileSuccess, profilePending, data]);
+    }, [locationSuccess, locationPending, data]);
 
     return (
         <div className="w-[60%] block mx-auto text-lg">

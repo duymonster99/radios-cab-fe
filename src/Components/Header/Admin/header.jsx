@@ -1,10 +1,8 @@
 // libraries
 import { faBell, faCaretDown, faClock, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useQuery } from '@tanstack/react-query';
-import { jwtDecode } from 'jwt-decode';
-import { useContext, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useContext, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 // services
 import { DataContext } from '../../../Hooks/context';
@@ -24,10 +22,25 @@ export default function HeaderAdmin() {
         }
     };
 
+    const { pathname } = useLocation()
+    console.log(pathname);
+    
+    const navigate = useNavigate()
+
     const handleLogout = () => {
+        if (pathname.includes("admin-company")) {
+            navigate('/login/company')
+        }
+        else if(pathname.includes("app-driver")) {
+            navigate("/login/driver")
+        }
+        else {
+            navigate("/login")
+        }
+
         localStorage.removeItem('tokenCompany');
-        setIsLogout(true)
         message.success('Logout Successfully!');
+        
     };
 
     const items = [
