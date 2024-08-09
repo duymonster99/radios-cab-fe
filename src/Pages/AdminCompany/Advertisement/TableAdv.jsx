@@ -14,9 +14,8 @@ import { deleteCompanyService, getCompanyService, putCompanyService } from '../.
 import { useMutationHook } from '../../../Hooks/useMutation';
 import Loading from '../../../Helper/Loading';
 
-
 export default function TableAdv({ columns }) {
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false);
     const [advs, setAdvs] = useState([]);
     const [openForm, setOpenForm] = useState(null);
     const [isCall, setIsCall] = useState(true);
@@ -36,10 +35,10 @@ export default function TableAdv({ columns }) {
     };
 
     // ? ----------------------------- when component mounted -------------------------
-    const getCompanyInType = () => getCompanyService(`AdvertisementImage/company/${company.id}/images`);
+    const getCompanyInType = () => getCompanyService(`AdminReferenceAction/company/${company.id}`);
 
-    const { data, isSuccess, isLoading, isPending } = useQuery({
-        queryKey: ['querytyoe'],
+    const { data, isSuccess, isLoading, isPending, isError } = useQuery({
+        queryKey: ['queryCompany'],
         queryFn: getCompanyInType,
         enabled: isCall,
     });
@@ -48,18 +47,23 @@ export default function TableAdv({ columns }) {
         if (isSuccess) {
             setAdvs(data);
             setIsCall(false);
-            setLoading(false)
+            setLoading(false);
         }
         if (isLoading || isPending) {
-            setLoading(true)
+            setLoading(true);
         }
-    }, [isSuccess, data, isLoading, isPending]);
+        if (isError) {
+            setLoading(false);
+            setAdvs([]);
+        }
+    }, [isSuccess, data, isLoading, isPending, isError]);
 
     let rows = [];
     for (let i = 0; i < columns.length; i++) {
         rows.push(columns[i].accessorKey);
     }
 
+    // console.log(advs);
 
     // ? --------------------- handle submit EDIT ------------------------------
     const mutation = useMutationHook((props) => putCompanyService(props));
@@ -98,7 +102,7 @@ export default function TableAdv({ columns }) {
             <Loading isLoading={loading}>
                 <div className="w-[90%] p-[1rem_.75rem] mx-auto">
                     <div className="overflow-x-auto">
-                        {advs.length < 2 && buttonAdd()}
+                        {advs !== undefined && advs.advertisements !== undefined && advs.advertisements?.length < 1 && buttonAdd()}
 
                         <table className="w-full mb-[1rem] text-[rgb(116,125,136)] vertical-top text-left">
                             <thead className="vertical-bottom border-b-[1px] border-[#000] text-[#000]">
@@ -117,14 +121,17 @@ export default function TableAdv({ columns }) {
 
                             <tbody>
                                 {advs !== undefined &&
-                                    advs.length > 0 &&
-                                    advs.map((item, index) => (
+                                    advs.advertisements?.map((item, index) => (
                                         <tr key={index} className="border-b-[1px] hover:bg-[#e8e8e9] px-3">
                                             {rows.map((row) => (
                                                 <td className="py-[.8rem] pl-3">
                                                     {row !== 'imageUrl' && item[row]}
                                                     {row === 'imageUrl' && (
-                                                        <img className='w-[100px] h-[100px]' src={item[row]} alt='banner' />
+                                                        <img
+                                                            className="w-[100px] h-[100px]"
+                                                            src={item[row]}
+                                                            alt="banner"
+                                                        />
                                                     )}
                                                 </td>
                                             ))}
@@ -144,7 +151,7 @@ export default function TableAdv({ columns }) {
                                         </tr>
                                     ))}
 
-                                {advs !== undefined && advs.length === 0 && (
+                                {advs.advertisements !== undefined && advs.advertisements.length === 0 && (
                                     <td colSpan={6} className="pt-5">
                                         <Empty />
                                     </td>

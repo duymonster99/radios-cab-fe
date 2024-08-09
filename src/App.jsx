@@ -11,7 +11,7 @@ import GlobalContext from './Context/Context';
 // Components
 import ScrollToTopButton from './Components/ScrollToTop';
 import ClientLayout from './Components/Layout/ClientLayout';
-import Page404 from './Pages/Client/Driver/Login/Oops.jsx';
+import Page404 from './Components/404Page.jsx';
 
 // ? =================================================================== Public Route
 const HomePage = lazy(() => import('./Pages/Client/Home'));
@@ -32,6 +32,7 @@ const ResetPssword = lazy(() => import('./Pages/Account/ForgetPasswordModule/Res
 
 //? ---------------------------------------------------------------------- Private Page
 // Admin Web
+import AuthAdmin from './Pages/Admin/AuthWrapper/AuthWrapper.jsx';
 const Dashboard = lazy(() => import('./Pages/Admin/Dashboard/index'));
 const UserManage = lazy(() => import('./Pages/Admin/UserManage/index'));
 const CompanyManage = lazy(() => import('./Pages/Admin/CompanyManage/index'));
@@ -39,6 +40,7 @@ const NewCompanyManage = lazy(() => import('./Pages/Admin/NewCompanyManage'));
 const FeedbackManage = lazy(() => import('./Pages/Admin/FeedbackManage'));
 const DriverAdminManage = lazy(() => import('./Pages/Admin/DriverManage'));
 const AdvAdminManage = lazy(() => import('./Pages/Admin/AdvertisementManage'));
+const ProfileAdmin = lazy(() => import('./Pages/Admin/ProfileAdmin'));
 
 // Company
 import AuthCompany from './Pages/AdminCompany/AuthWrapper/AuthWrapper.jsx';
@@ -47,9 +49,11 @@ const CompanyDashboard = lazy(() => import('./Pages/AdminCompany/Dashboard'));
 const StepsCompanyInfo = lazy(() => import('./Pages/AdminCompany/UpdateInfo'));
 const CompanyProfile = lazy(() => import('./Pages/AdminCompany/ProfileCompany'));
 const CompanyManageDriver = lazy(() => import('./Pages/AdminCompany/DriverManage'));
+const CompanyManageNewDriver = lazy(() => import('./Pages/AdminCompany/NewDriver'));
 const CompanyServiceType = lazy(() => import('./Pages/AdminCompany/ServiceTypeManage'));
 const CompanyLocation = lazy(() => import('./Pages/AdminCompany/LocationManage'));
 const CompanyAdv = lazy(() => import('./Pages/AdminCompany/Advertisement'));
+const CompanyFeedbackDriver = lazy(() => import('./Pages/AdminCompany/FeedbackManage'));
 
 // Driver
 import AuthDriver from './Pages/Driver/AuthWrapper/AuthWrapper.jsx';
@@ -57,6 +61,7 @@ const DriverDashboard = lazy(() => import('./Pages/Driver/Dashboard'));
 const AppDriver = lazy(() => import('./Pages/Driver/index'));
 const AppDriverProfile = lazy(() => import('./Pages/Driver/Profile'));
 const StepsDriverInfo = lazy(() => import('./Pages/Driver/CompleteProfile'));
+const FeedbackDriver = lazy(() => import('./Pages/Driver/Feedback'));
 
 function App() {
     const [headerHeight, setHeaderHeight] = useState(0);
@@ -246,19 +251,77 @@ function App() {
                                     />
 
                                     {/* Supper Admin */}
-                                    <Route path="/admin" element={<Dashboard />} />
+                                    <Route
+                                        path="/admin"
+                                        element={
+                                            <AuthAdmin path="/admin">
+                                                <Dashboard />
+                                            </AuthAdmin>
+                                        }
+                                    />
 
-                                    <Route path="/admin/user" element={<UserManage />} />
+                                    <Route
+                                        path="/admin/user"
+                                        element={
+                                            <AuthAdmin path="/admin/user">
+                                                <UserManage />
+                                            </AuthAdmin>
+                                        }
+                                    />
 
-                                    <Route path="/admin/company" element={<CompanyManage />} />
+                                    <Route
+                                        path="/admin/company"
+                                        element={
+                                            <AuthAdmin path="/admin/company">
+                                                <CompanyManage />
+                                            </AuthAdmin>
+                                        }
+                                    />
 
-                                    <Route path="/admin/new-company" element={<NewCompanyManage />} />
+                                    <Route
+                                        path="/admin/new-company"
+                                        element={
+                                            <AuthAdmin path="/admin/new-company">
+                                                <NewCompanyManage />
+                                            </AuthAdmin>
+                                        }
+                                    />
 
-                                    <Route path="/admin/feedback" element={<FeedbackManage />} />
+                                    <Route
+                                        path="/admin/feedback"
+                                        element={
+                                            <AuthAdmin path="/admin/feedback">
+                                                <FeedbackManage />
+                                            </AuthAdmin>
+                                        }
+                                    />
 
-                                    <Route path="/admin/driver" element={<DriverAdminManage />} />
+                                    <Route
+                                        path="/admin/driver"
+                                        element={
+                                            <AuthAdmin path="/admin/driver">
+                                                <DriverAdminManage />
+                                            </AuthAdmin>
+                                        }
+                                    />
 
-                                    <Route path="/admin/advertisement" element={<AdvAdminManage />} />
+                                    <Route
+                                        path="/admin/advertisement"
+                                        element={
+                                            <AuthAdmin path="/admin/advertisement">
+                                                <AdvAdminManage />
+                                            </AuthAdmin>
+                                        }
+                                    />
+
+                                    <Route
+                                        path="/admin/profile"
+                                        element={
+                                            <AuthAdmin path="/admin/profile">
+                                                <ProfileAdmin />
+                                            </AuthAdmin>
+                                        }
+                                    />
 
                                     {/* Admin company */}
                                     <Route
@@ -273,9 +336,9 @@ function App() {
                                     <Route
                                         path="/admin-company/additional-profile"
                                         element={
-                                            <AuthCompany path="/admin-company/additional-profile">
-                                                <StepsCompanyInfo />
-                                            </AuthCompany>
+                                            // <AuthCompany path="/admin-company/additional-profile">
+                                            <StepsCompanyInfo />
+                                            // </AuthCompany>
                                         }
                                     />
 
@@ -316,10 +379,28 @@ function App() {
                                     />
 
                                     <Route
+                                        path="/admin-company/new-driver"
+                                        element={
+                                            <AuthCompany path="/admin-company/new-driver">
+                                                <CompanyManageNewDriver />
+                                            </AuthCompany>
+                                        }
+                                    />
+
+                                    <Route
                                         path="/admin-company/advertisement"
                                         element={
                                             <AuthCompany path="/admin-company/advertisement">
                                                 <CompanyAdv />
+                                            </AuthCompany>
+                                        }
+                                    />
+
+                                    <Route
+                                        path="/admin-company/feedback"
+                                        element={
+                                            <AuthCompany path="/admin-company/feedback">
+                                                <CompanyFeedbackDriver />
                                             </AuthCompany>
                                         }
                                     />
@@ -337,9 +418,9 @@ function App() {
                                     <Route
                                         path="/app-driver/additional-profile"
                                         element={
-                                            <AuthDriver path="/app-driver/additional-profile">
-                                                <StepsDriverInfo />
-                                            </AuthDriver>
+                                            // <AuthDriver path="/app-driver/additional-profile">
+                                            <StepsDriverInfo />
+                                            // </AuthDriver>
                                         }
                                     />
 
@@ -366,6 +447,15 @@ function App() {
                                         element={
                                             <AuthDriver path="/app-driver/profile">
                                                 <AppDriverProfile />
+                                            </AuthDriver>
+                                        }
+                                    />
+                                    
+                                    <Route
+                                        path="/app-driver/feedback"
+                                        element={
+                                            <AuthDriver path="/app-driver/feedback">
+                                                <FeedbackDriver />
                                             </AuthDriver>
                                         }
                                     />

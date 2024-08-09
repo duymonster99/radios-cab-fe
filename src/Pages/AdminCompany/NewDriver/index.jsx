@@ -1,27 +1,27 @@
 // components
 import AdminLayout from '../../../Components/Layout/AdminLayout';
-import TableFeedbackOfMyDriver from './components/TableFeedbackCompany';
+import TableNewDriver from './TableNewDriver';
 
 // services
 import { DataProvider } from '../CompanyProvider/DataProvider';
 
-export default function FeedbackDriverLayout() {
+export default function DriverManageLayout() {
     const columns = [
         { accessorKey: 'id', header: 'Id' },
-        { accessorKey: 'name', header: 'User Name' },
-        { accessorKey: 'email', header: 'Email' },
-        { accessorKey: 'description', header: 'Description' },
-        { accessorKey: 'rating', header: 'Rating' },
+        { accessorKey: 'driverFullName', header: 'Driver Name' },
+        { accessorKey: 'driverMobile', header: 'Driver Mobile' },
+        { accessorKey: 'driverEmail', header: 'Driver Email' },
+        { accessorKey: 'isActive', header: 'Profile Status' },
     ];
 
-    const breadcrumb = "Feedback Driver"
-    
+    const breadcrumb = "New Driver Manage"
+
     return (
         <DataProvider breadcrumb={breadcrumb}>
             <AdminLayout>
                 <div className="w-full p-[1.5rem] mx-auto">
                     <div className="flex flex-col overflow-auto rounded-[1rem] shadow-[0px_3px_5px_rgba(0,0,0,0.4)]">
-                        <TableFeedbackOfMyDriver columns={columns} />
+                        <TableNewDriver columns={columns} />
                     </div>
                 </div>
             </AdminLayout>

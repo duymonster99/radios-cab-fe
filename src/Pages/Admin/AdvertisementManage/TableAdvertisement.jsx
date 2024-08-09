@@ -208,7 +208,7 @@ export default function TableAds({ columns }) {
                                 {currentItemPage.length > 0 &&
                                     currentItemPage.map((item, index) => (
                                         <>
-                                            {item.advertisements.map((image) => (
+                                            {item.advertisements?.map((image) => (
                                                 <tr key={index} className="border-b-[1px] hover:bg-[#e8e8e9] px-3">
                                                     <td>{image.id}</td>
 
@@ -257,56 +257,66 @@ export default function TableAds({ columns }) {
                                         </>
                                     ))}
 
-                                {currentItemPage !== undefined && currentItemPage.length === 0 && (
-                                    <td colSpan={6} className="pt-5">
-                                        <Empty />
-                                    </td>
-                                )}
+                                {currentItemPage.length > 0 &&
+                                    currentItemPage.every((item) => item.advertisements === null) && (
+                                        <tr>
+                                            <td colSpan={6} className="pt-5">
+                                                <Empty />
+                                            </td>
+                                        </tr>
+                                    )}
                             </tbody>
                         </table>
 
-                        {currentItemPage !== null && currentItemPage !== undefined && currentItemPage.length > 0 && (
-                            <div className="w-full flex-[0_0_auto] px-[calc(1.5rem/2)] mt-[3rem] flex justify-center items-center">
-                                <div className="flex pl-0">
-                                    <button
-                                        className={`text-gray-500 p-[10px_16px] transition-all duration-500 ease border mx-[4px] my-0 text-[1rem] rounded-[10px] text-lg disabled:cursor-not-allowed disabled:bg-gray-100 hover:bg-blue-500`}
-                                        disabled={currentPage === 1 && true}
-                                        onClick={handlePrevPaginate}
-                                    >
-                                        &laquo;
-                                    </button>
+                        {currentItemPage.length > 0 &&
+                            currentItemPage.map((item, index) => (
+                                <>
+                                    {item.advertisements !== null && (
+                                        <div className="w-full flex-[0_0_auto] px-[calc(1.5rem/2)] mt-[3rem] flex justify-center items-center">
+                                            <div className="flex pl-0">
+                                                <button
+                                                    className={`text-gray-500 p-[10px_16px] transition-all duration-500 ease border mx-[4px] my-0 text-[1rem] rounded-[10px] text-lg disabled:cursor-not-allowed disabled:bg-gray-100 hover:bg-blue-500`}
+                                                    disabled={currentPage === 1 && true}
+                                                    onClick={handlePrevPaginate}
+                                                >
+                                                    &laquo;
+                                                </button>
 
-                                    {pages.map((item, index) => (
-                                        <button
-                                            className={`hover:bg-blue-500 text-lg p-[10px_16px] transition-all duration-500 ease border mx-[4px] rounded-[10px] ${
-                                                currentPage === item ? 'bg-blue-500 text-white' : 'text-[#45595B]'
-                                            }`}
-                                            key={index}
-                                            onClick={() => setCurrentPage(item)}
-                                        >
-                                            {item}
-                                        </button>
-                                    ))}
+                                                {pages.map((item, index) => (
+                                                    <button
+                                                        className={`hover:bg-blue-500 text-lg p-[10px_16px] transition-all duration-500 ease border mx-[4px] rounded-[10px] ${
+                                                            currentPage === item
+                                                                ? 'bg-blue-500 text-white'
+                                                                : 'text-[#45595B]'
+                                                        }`}
+                                                        key={index}
+                                                        onClick={() => setCurrentPage(item)}
+                                                    >
+                                                        {item}
+                                                    </button>
+                                                ))}
 
-                                    <button
-                                        className={`text-lg p-[10px_16px] transition-all duration-500 ease border mx-[4px] rounded-[10px] hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100`}
-                                        disabled={currentPage > totalItems / itemPerPage && true}
-                                        onClick={handleNextPaginate}
-                                    >
-                                        &raquo;
-                                    </button>
-                                </div>
+                                                <button
+                                                    className={`text-lg p-[10px_16px] transition-all duration-500 ease border mx-[4px] rounded-[10px] hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100`}
+                                                    disabled={currentPage > totalItems / itemPerPage && true}
+                                                    onClick={handleNextPaginate}
+                                                >
+                                                    &raquo;
+                                                </button>
+                                            </div>
 
-                                <div className="">
-                                    <Select
-                                        style={{ width: '180px', marginLeft: '10px' }}
-                                        options={options}
-                                        value={`${itemPerPage}`}
-                                        onChange={handleSelectItem}
-                                    />
-                                </div>
-                            </div>
-                        )}
+                                            <div className="">
+                                                <Select
+                                                    style={{ width: '180px', marginLeft: '10px' }}
+                                                    options={options}
+                                                    value={`${itemPerPage}`}
+                                                    onChange={handleSelectItem}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            ))}
                     </div>
                 </div>
             </Loading>

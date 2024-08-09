@@ -1,44 +1,42 @@
 // libraries
 import { Link } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
-
-// components
-import FormEditProfile from "./FormEdit";
-
-// services
-import { DataContext } from "../../../Hooks/context";
-import { getOneCompanyService } from "../../../Services/apiService";
 import { useQuery } from "@tanstack/react-query";
 import { jwtDecode } from "jwt-decode";
+import { getAdminService } from "../../../Services/apiService";
 
-export default function ProfileCompany() {
-    const [company, setCompany] = useState([])
+// components
+
+// services
+
+export default function ProfileAdmin() {
+    const [user, setUser] = useState([])
     const [openFormEdit, setOpenFormEdit] = useState(false)
     const [isCall, setIsCall] = useState(true)
 
     // ? ------------------- get one company -------------------------
     // get id company
-    const tokenStorage = localStorage.getItem("tokenCompany")
+    const tokenStorage = localStorage.getItem("tokenUser")
     const { unique_name } = jwtDecode(tokenStorage)
 
-    const getCompanyInProfile = () => getOneCompanyService(`AdminReferenceAction/company/${unique_name}`)
+    const getUser = () => getAdminService(`Admin/getUserById/${unique_name}`)
 
     const { data, isSuccess, isLoading, isPending } = useQuery({
         queryKey: ['getInProfile'],
-        queryFn: getCompanyInProfile,
+        queryFn: getUser,
         enabled: isCall
     })
 
     useEffect(() => {
         if (isSuccess) {
-            setCompany(data)
+            setUser(data.data)
             setIsCall(false)
         }
     }, [data, isSuccess])
 
-    const addressDetails = `${company.companyAddress}, ${company.companyWard}, ${company.companyDistrict}, ${company.companyCity}`
+    // const addressDetails = `${company?.companyAddress}, ${company?.companyWard}, ${company?.companyDistrict}, ${company?.companyCity}`
 
-    const fileAvatar = company.companyImageUrl
+    // const fileAvatar = user.companyImageUrl
 
     return (
         <div className="bg-gray-100">
@@ -48,12 +46,12 @@ export default function ProfileCompany() {
                         <div className="bg-white shadow rounded-lg p-6">
                             <div className="flex flex-col items-center">
                                 <img
-                                    src={fileAvatar}
+                                    src=""
                                     className="w-32 h-32 bg-gray-300 rounded-full mb-4 shrink-0"
                                     alt=""
                                 ></img>
-                                <h1 className="text-xl font-bold">{company.companyName}</h1>
-                                <p className="text-gray-700">{company.companyEmail}</p>
+                                <h1 className="text-xl font-bold">{user.fullName}</h1>
+                                <p className="text-gray-700">{user.email}</p>
                                 <div className="mt-6 flex flex-wrap gap-4 justify-center">
                                     <button 
                                         className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
@@ -61,26 +59,24 @@ export default function ProfileCompany() {
                                     >
                                         Update
                                     </button>
+                                    <button className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded">
+                                        Upgrade
+                                    </button>
                                 </div>
                             </div>
                             <hr className="my-6 border-t border-gray-300" />
                             <div className="flex flex-col">
-                                <span className="text-gray-700 uppercase font-bold tracking-wider mb-2">Profile Company</span>
+                                <span className="text-gray-700 uppercase font-bold tracking-wider mb-2">Profile User</span>
                                 <ul>
-                                    <li className="mb-2">Tel: {company.companyTelephone}</li>
-                                    <li className="mb-2">Address: {addressDetails}</li>
-                                    <li className="mb-2">Membership: {company.membershipType}</li>
+                                    <li className="mb-2">Tel: {user.userTelephone}</li>
+                                    <li className="mb-2">Address: </li>
+                                    <li className="mb-2">Membership: {user.membershipType}</li>
                                 </ul>
                             </div>
                         </div>
                     </div>
                     <div className="col-span-4 sm:col-span-9 z-50">
                         <div className="bg-white shadow rounded-lg p-6">
-                            <h2 className="text-xl font-bold mb-4">About Us</h2>
-                            <p className="text-gray-700">
-                                {company.description}
-                            </p>
-
                             <h3 className="font-semibold text-center mt-3 -mb-2">Find us on</h3>
                             <div className="flex justify-center items-center gap-6 my-6">
                                 <Link
@@ -156,7 +152,7 @@ export default function ProfileCompany() {
                                     <span className="text-gray-700 font-bold">Contact Person</span>
                                 </div>
                                 <p className="mt-2">
-                                    {company.contactPerson}
+                                    {user.contactPerson}
                                 </p>
                             </div>
                             <div className="mb-6">
@@ -164,7 +160,7 @@ export default function ProfileCompany() {
                                     <span className="text-gray-700 font-bold">Designation Contact Person</span>
                                 </div>
                                 <p className="mt-2">
-                                    {company.designation}
+                                    {user.designation}
                                 </p>
                             </div>
                             <div className="mb-6">
@@ -172,7 +168,7 @@ export default function ProfileCompany() {
                                     <span className="text-gray-700 font-bold">Mobile Contact Person</span>
                                 </div>
                                 <p className="mt-2">
-                                    {company.contactPersonMobile}
+                                    {user.contactPersonMobile}
                                 </p>
                             </div>
                         </div>
@@ -180,7 +176,7 @@ export default function ProfileCompany() {
                 </div>
             </div>
 
-            <FormEditProfile openFormEdit={openFormEdit} setOpenFormEdit={setOpenFormEdit} company={company} setIsCall={setIsCall} />
+            {/* <FormEditProfile openFormEdit={openFormEdit} setOpenFormEdit={setOpenFormEdit} company={company} setIsCall={setIsCall} /> */}
         </div>
     );
 }

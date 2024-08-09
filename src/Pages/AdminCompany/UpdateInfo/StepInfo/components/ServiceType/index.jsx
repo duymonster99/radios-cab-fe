@@ -119,9 +119,6 @@ export default function ServiceType({ stateBtn, setStateBtn, current, setCurrent
         }
     }, [isSuccess, isPending]);
 
-    console.log(mutationType);
-    
-
     return (
         <div className="w-[60%] mx-auto block text-lg">
             <h3 className="text-black font-bold text-2xl mt-4">Add Service Type</h3>

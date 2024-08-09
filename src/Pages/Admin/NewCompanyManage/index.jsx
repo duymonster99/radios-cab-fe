@@ -12,8 +12,7 @@ export default function NewCompanyManage() {
         { accessorKey: 'id', header: 'Id' },
         { accessorKey: 'companyName', header: 'Company Name' },
         { accessorKey: 'companyEmail', header: 'Company Email' },
-        { accessorKey: 'contactPerson', header: 'Contact Person' },
-        { accessorKey: 'contactPersonMobile', header: 'Contact Person Phone' },
+        { accessorKey: 'companyTaxCode', header: 'Company Tax Code' },
         { accessorKey: 'isActive', header: 'Status' },
     ];
 

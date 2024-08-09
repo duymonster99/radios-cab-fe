@@ -72,17 +72,19 @@ export default function LoginCompany(props) {
     // ? ====================================================== handle after submit form ====================================
     useEffect(() => {
         if (isSuccess) {
-            message.success('Welcome to admin page!');
-            const token = data?.token;
-
-            localStorage.setItem('tokenCompany', token);
+            const token = data?.token;                     
 
             if (token) {
-                const access_token = jwtDecode(token);
-
-                if (data?.company?.isActive === false) {
+                if (data?.company?.companyTelephone === null) {
+                    message.info('Please complete profile to continue');
+                    navigate('/admin-company/additional-profile');
+                } 
+                else if (data?.company?.isActive === false) {
                     message.error('Sorry! Your account is disactive. Please contact super admin.');
+                    navigate("/404")
                 } else {
+                    message.success('Welcome to admin page!');
+                    localStorage.setItem('tokenCompany', token);
                     navigate('/admin-company');
                 }
             }

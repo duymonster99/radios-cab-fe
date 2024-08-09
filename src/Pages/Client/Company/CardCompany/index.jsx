@@ -13,7 +13,6 @@ const cn = classNames.bind(styled);
 
 export default function CardCompany({ setLoadingPage, selectLocation }) {
     const [companies, setCompanies] = useState([]);
-    console.log(companies);
 
     // ? ========================================================== get list company ==========================================
     const getCompany = () => getCompanyService('AdminReferenceAction/allCompaniesInfo');
@@ -22,6 +21,7 @@ export default function CardCompany({ setLoadingPage, selectLocation }) {
         data: getData,
         isSuccess: getSuccess,
         isLoading: getLoading,
+        isError
     } = useQuery({ queryKey: ['getCompany'], queryFn: getCompany, retry: false });
 
     useEffect(() => {
@@ -36,8 +36,18 @@ export default function CardCompany({ setLoadingPage, selectLocation }) {
 
                 setCompanies(companyFilterByLocation);
             }
+
+            setLoadingPage(false)
         }
-    }, [getData, getSuccess, selectLocation]);
+
+        if (getLoading) {
+            setLoadingPage(true)
+        }
+
+        if (isError) {
+            setLoadingPage(false)
+        }
+    }, [getData, getSuccess, selectLocation, getLoading, isError]);
 
     // ? ==================================== handle navigate detail ======================================
     const navigate = useNavigate();
@@ -54,21 +64,15 @@ export default function CardCompany({ setLoadingPage, selectLocation }) {
                         <div className={cn('flip-card')}>
                             <div className={cn('flip-card-inner')}>
                                 <div className={cn('flip-card-front')}>
-                                    <FileImageOutlined
-                                        className="text-[white] text-center"
-                                        style={{
-                                            fontSize: '4rem',
-                                            transition: 'all 0.6s cubic-bezier(0.23, 1, 0.320, 1)',
-                                        }}
-                                    />
+                                    <img src={item.companyImageUrl} className='object-cover w-full h-full rounded-[15px]' alt='logo company' />
                                 </div>
                                 <div className={cn('flip-card-back')}>
-                                    <p className={cn('title')}>{item.companyName}</p>
-                                    <p>Company Description</p>
+                                    <p>{item.description}</p>
                                 </div>
                             </div>
                             <div className="text-center mt-4">
                                 <h4 className="text-black font-bold text-2xl">{item.companyName}</h4>
+                                <p>+84{item.companyTelephone}</p>
                             </div>
                         </div>
                     </button>

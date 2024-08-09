@@ -1,6 +1,6 @@
 // libraries
 import { jwtDecode } from 'jwt-decode';
-import { faClipboardList, faIdCard, faNewspaper, faRectangleAd, faTable, faTv, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faClipboardList, faTable, faTv, faUser } from '@fortawesome/free-solid-svg-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
@@ -31,16 +31,16 @@ export const DataProvider = ({ children }) => {
 
     useEffect(() => {
         if (isSuccess) {
-            setDriver(data)
+            setDriver(data.data)
         }
     }, [data, isSuccess, isPending])
-
-    // const { companyName, membershipType } = driver;
+    
 
     const navName = [
         { id: 1, title: 'Dashboard', slug: '/app-driver/dashboard', icon: faTv, iconColor: 'text-blue-500' },
         { id: 2, title: 'Driver', slug: '/app-driver', icon: faUser, iconColor: 'text-green-500' },
         { id: 3, title: 'Profile', slug: '/app-driver/profile', icon: faTable, iconColor: 'text-orange-500' },
+        { id: 3, title: 'Feedback', slug: '/app-driver/feedback', icon: faClipboardList, iconColor: 'text-violet-500' },
     ];
 
     const filteredNav = navName;

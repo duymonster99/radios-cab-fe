@@ -21,6 +21,11 @@ export const getOneCompanyService = async (apiUrl) => {
 };
 
 export const putCompanyService = async ({ url, data }) => {
+    const response = await axios.put(`${apiServiceCompany}/${url}`, data);
+    return response.data;
+};
+
+export const putCompanyImageService = async ({ url, data }) => {
     const response = await axios.put(`${apiServiceCompany}/${url}`, data, {
         headers: {
             'Content-Type': 'multipart/form-data',
@@ -51,7 +56,11 @@ export const getOneDriverService = async (apiUrl) => {
 };
 
 export const putDriverService = async ({ url, data }) => {
-    const response = await axios.put(`${apiServiceDriver}/${url}`, data);
+    const response = await axios.put(`${apiServiceDriver}/${url}`, data, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
     return response.data;
 };
 
@@ -73,6 +82,15 @@ export const postAdminService = async ({ url, data }) => {
 
 export const putAdminService = async ({ url, data }) => {
     const response = await axios.put(`${apiService2}/${url}`, data);
+    return response.data;
+};
+
+export const putAdminImageService = async ({ url, data }) => {
+    const response = await axios.put(`${apiService2}/${url}`, data, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
     return response.data;
 };
 

@@ -1,12 +1,19 @@
 import { Modal } from 'antd';
 import { useEffect, useState } from 'react';
-import { getOneDriverService } from '../../../../Services/apiService';
 import { useQuery } from '@tanstack/react-query';
-import Loading from '../../../../Helper/Loading';
+import Loading from '../../../Helper/Loading';
+import { getOneDriverService } from '../../../Services/apiService';
 
 export default function ViewDriverProfile({ openView, setOpenView, id }) {
     const [driver, setDriver] = useState({});
     const [loading, setLoading] = useState(false);
+    const [isCall, setIsCall] = useState(false)
+
+    useEffect(() => {
+        if (id) {
+            setIsCall(true)
+        }
+    }, [id])
 
     // ? -------------------------- GET ONE DRIVER  DETAILS ------------------------
     const getDriverDetails = () => getOneDriverService(`Admin/getDriverById/${id}`);
@@ -14,7 +21,8 @@ export default function ViewDriverProfile({ openView, setOpenView, id }) {
     const { data, isSuccess, isLoading, isPending, isError } = useQuery({
         queryKey: ['getDriverDetails'],
         queryFn: getDriverDetails,
-        retry: false
+        retry: false,
+        enabled: isCall
     });
 
     // ? ------------------------- HANDLE AFTER CALL API ---------------------------
@@ -71,9 +79,7 @@ export default function ViewDriverProfile({ openView, setOpenView, id }) {
 
                     <div className="flex mt-4 gap-4">
                         <label className="font-bold">License Image:</label>
-                        <img src="" alt="license picture">
-                            {driver?.driverInfo?.driverLicenseImage}
-                        </img>
+                        <img src={driver?.driverInfo?.driverLicenseImage} className='w-[100px] h-[100px]' alt="license picture" />
                     </div>
                 </div>
             </Loading>

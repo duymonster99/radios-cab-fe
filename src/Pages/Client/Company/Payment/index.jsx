@@ -3,12 +3,15 @@ import { CloseOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import moment from 'moment/moment';
 
 // services
 import { useMutationHook } from '../../../../Hooks/useMutation';
 import { postCompanyService } from '../../../../Services/apiService';
 import Loading from '../../../../Helper/Loading';
-import moment from 'moment/moment';
+
+// images
+import Logo from '../../../../Assets/img/Logo.jpg'
 
 export default function Payment() {
     const navigate = useNavigate();
@@ -98,18 +101,16 @@ export default function Payment() {
         }
     }, [paymentSuccess, paymentLoading, paymentPending]);
 
-    console.log(mutationPayment);
-
     return (
         <>
             <div className="w-full">
                 <Loading isLoading={loading}>
                     <div className="w-[85%] flex mx-auto py-[3rem] justify-center">
-                        <div className="md:w-[30%] w-full h-[370px] p-[1rem_1.5rem] bg-white shadow-[0_0px_10px_1.5px_#ececec] rounded-[10px]">
+                        <div className="md:w-[30%] w-full h-[470px] p-[1rem_1.5rem] bg-white shadow-[0_0px_10px_1.5px_#ececec] rounded-[10px]">
                             <h3 className='text-black font-bold font-["Open_Sans"] text-[1.25rem]'>
                                 Transaction information
                             </h3>
-                            <img alt="logo" />
+                            <img src={Logo} alt="logo" className='w-[100px] h-[100px] pb-3' />
                             <hr></hr>
 
                             <div className="flex justify-between mt-[.8rem]">

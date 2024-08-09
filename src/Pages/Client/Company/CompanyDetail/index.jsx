@@ -5,11 +5,6 @@ import { useLocation } from 'react-router-dom';
 
 // components
 import ListDriverOfCompany from './components/ListDriver';
-import FeedbackForCompany from './components/Feedback';
-
-// services
-import { getOneCompanyService } from '../../../../Services/apiService';
-import axios from 'axios';
 import FormCreateDriver from './components/FormCreateDriver';
 
 export default function CompanyDetail(props) {
@@ -45,7 +40,7 @@ export default function CompanyDetail(props) {
                                 <div className="w-full shrink-0 mt-[1.5rem] px-[.75rem] lg:w-[50%] lg:flex-[0_0_auto]">
                                     <div className="border border-[rgb(222,226,230)] rounded-[10px]">
                                         <img
-                                            src="https://www.svgrepo.com/show/508699/landscape-placeholder.svg"
+                                            src={company?.companyImageUrl}
                                             className="h-auto rounded-[10px]"
                                             alt="company avatar"
                                         />
@@ -88,9 +83,7 @@ export default function CompanyDetail(props) {
                                     </nav>
                                     <div className="tab-pane">
                                         <p className="mt-0 mb-[1rem]">
-                                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt quis
-                                            explicabo facere ea quod architecto et facilis atque beatae exercitationem
-                                            reiciendis, nobis minus similique. Illo excepturi sunt libero quod qui.
+                                            {company.description}
                                         </p>
                                     </div>
                                 </div>
@@ -101,8 +94,6 @@ export default function CompanyDetail(props) {
             </div>
 
             <ListDriverOfCompany />
-
-            <FeedbackForCompany />
 
             <FormCreateDriver openForm={openForm} setOpenForm={setOpenForm} cid={state.id} />
         </div>

@@ -1,13 +1,13 @@
 // libraries
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 // components
+import EditProfileDriver from "./UpdateProfile";
 
 // services
 import { getDriverService } from "../../../Services/apiService";
-import { DataContext } from "../../../Hooks/context";
 import { jwtDecode } from "jwt-decode";
 
 export default function ProfileDriverApp() {
@@ -35,7 +35,7 @@ export default function ProfileDriverApp() {
         }
     }, [data, isSuccess]);
 
-    const addressDetails = `${driver.driverInfo.address}, ${driver.driverInfo.ward}, ${driver.driverInfo.street}, ${driver.driverInfo.city}`
+    const addressDetails = `${driver?.driverInfo?.address}, ${driver?.driverInfo?.ward}, ${driver?.driverInfo?.street}, ${driver?.driverInfo?.city}`
 
     return (
         <div className="bg-gray-100 w-full">
@@ -45,7 +45,7 @@ export default function ProfileDriverApp() {
                         <div className="bg-white shadow rounded-lg p-6">
                             <div className="flex flex-col items-center">
                                 <img
-                                    src="https://randomuser.me/api/portraits/men/94.jpg"
+                                    src={driver?.driverInfo?.driverPersonalImage}
                                     className="w-32 h-32 bg-gray-300 rounded-full mb-4 shrink-0"
                                     alt=""
                                 ></img>
@@ -58,9 +58,6 @@ export default function ProfileDriverApp() {
                                     >
                                         Update
                                     </button>
-                                    <Link href="#" className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded">
-                                        Delete
-                                    </Link>
                                 </div>
                             </div>
 
@@ -73,7 +70,11 @@ export default function ProfileDriverApp() {
                                     <li className="mb-2">Address: {driver !== undefined && driver !== null && (
                                         <span>{addressDetails}</span>
                                     )}</li>
+                                    <li className="mb-2">Registration Car: {driver?.driverInfo?.registrationCar}</li>
                                     <li className="mb-2">License: {driver?.driverInfo?.driverLicense}</li>
+                                    <li className="mb-2">License Image:  
+                                        <img className="w-[100px] h-[100px]" src={driver?.driverInfo?.driverLicenseImage} />
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -81,7 +82,7 @@ export default function ProfileDriverApp() {
                 </div>
             </div>
 
-            {/* <FormEditProfile openFormEdit={openFormEdit} setOpenFormEdit={setOpenFormEdit} company={company} /> */}
+            <EditProfileDriver openFormEdit={openFormEdit} setOpenFormEdit={setOpenFormEdit} driver={driver} setIsCall={setShouldFetchApi} />
         </div>
     );
 }

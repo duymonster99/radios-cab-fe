@@ -6,7 +6,7 @@ const categories = [
     { id: 2, name: 'TPHCM' },
     { id: 3, name: 'Ha Noi' },
     { id: 4, name: 'Vung Tau' },
-    { id: 5, name: 'Nha Trang' },
+    { id: 5, name: 'Da Nang' },
 ];
 
 const productShop = [

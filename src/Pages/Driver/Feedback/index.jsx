@@ -1,11 +1,11 @@
 // components
 import AdminLayout from '../../../Components/Layout/AdminLayout';
-import TableFeedbackOfMyDriver from './components/TableFeedbackCompany';
 
 // services
-import { DataProvider } from '../CompanyProvider/DataProvider';
+import { DataProvider } from '../DriverProvider';
+import TableFeedbackDriver from './TableFeedback';
 
-export default function FeedbackDriverLayout() {
+export default function FeedbackDriver() {
     const columns = [
         { accessorKey: 'id', header: 'Id' },
         { accessorKey: 'name', header: 'User Name' },
@@ -21,7 +21,7 @@ export default function FeedbackDriverLayout() {
             <AdminLayout>
                 <div className="w-full p-[1.5rem] mx-auto">
                     <div className="flex flex-col overflow-auto rounded-[1rem] shadow-[0px_3px_5px_rgba(0,0,0,0.4)]">
-                        <TableFeedbackOfMyDriver columns={columns} />
+                        <TableFeedbackDriver columns={columns} />
                     </div>
                 </div>
             </AdminLayout>

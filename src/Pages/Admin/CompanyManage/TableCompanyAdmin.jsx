@@ -1,6 +1,13 @@
 // libraries
 import { useContext, useEffect, useState } from 'react';
-import { CheckCircleOutlined, DeleteFilled, EditOutlined, EyeTwoTone, MailFilled } from '@ant-design/icons';
+import {
+    CheckCircleOutlined,
+    CloseCircleOutlined,
+    DeleteFilled,
+    EditOutlined,
+    EyeTwoTone,
+    MailFilled,
+} from '@ant-design/icons';
 import { Empty, message, Select } from 'antd';
 import { Tooltip } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
@@ -75,21 +82,6 @@ export default function TableCompanyAdmin({ columns }) {
         rows.push(columns[i].accessorKey);
     }
 
-    // ? ------------------------------- HANDLE DELETE -------------------------
-    const deleteMutation = useMutationHook((props) => deleteCompanyService(props));
-    const { isSuccess: deleteLocation } = deleteMutation;
-
-    const handleDelete = (id) => {
-        deleteMutation.mutate({ url: `AdminReferenceAction/company/${id}/delete` });
-    };
-
-    useEffect(() => {
-        if (deleteLocation) {
-            message.success('Deleted Driver Successfully!');
-            setIsCall(true);
-        }
-    }, [deleteLocation]);
-
     // ? ------------------------------ HANDLE PAGINATE ---------------------------
     const [currentPage, setCurrentPage] = useState(1);
     const [itemPerPage, setItemPerPage] = useState(10);
@@ -121,6 +113,39 @@ export default function TableCompanyAdmin({ columns }) {
     const handleSendmail = (email) => {
         window.location.href = `mailto:${email}`;
     };
+
+    // ? ----------------------- HANDLE DISACTIVE ACCOUNT ------------------------------
+    const mutation = useMutationHook((props) => putCompanyService(props));
+
+    const { isError: putError, isSuccess: putSuccess, isPending: putPending } = mutation;
+
+    const handleDisActiveAccount = (id) => {
+        const dataUpdate = {
+            isActive: false,
+        };
+
+        mutation.mutate({ url: `CompanyInfoUpdate/company/${id}/update`, data: dataUpdate });
+    };
+
+    // handle after put
+    useEffect(() => {
+        if (putSuccess) {
+            message.success('Updated Successfully!');
+            setIsCall(true);
+            setLoading(false);
+        }
+
+        if (putPending) {
+            setLoading(true);
+        }
+    }, [putSuccess, putPending]);
+
+    useEffect(() => {
+        if (putError) {
+            message.error('Updated Failed!');
+        }
+    }, [putError]);
+
 
     return (
         <div className="w-full p-[2rem_.75rem] mx-auto bg-white z-[100] rounded-[1rem]">
@@ -164,12 +189,12 @@ export default function TableCompanyAdmin({ columns }) {
                                                     </button>
                                                 </Tooltip>
 
-                                                <Tooltip title="Delete">
+                                                <Tooltip title="DisActive Account">
                                                     <button
                                                         className="duration-500 rounded-[50%] p-[.5rem_.6rem] hover:bg-[#b5b5b5]"
-                                                        onClick={() => handleDelete(item.id)}
+                                                        onClick={() => handleDisActiveAccount(item.id)}
                                                     >
-                                                        <DeleteFilled
+                                                        <CloseCircleOutlined
                                                             style={{ color: '#dc3545', fontSize: '1.2rem' }}
                                                         />
                                                     </button>
@@ -178,7 +203,7 @@ export default function TableCompanyAdmin({ columns }) {
                                         </tr>
                                     ))}
 
-                                {currentItemPage !== undefined && currentItemPage.length === 0 && (
+                                {currentItemPage.length === 0 && (
                                     <td colSpan={6} className="pt-5">
                                         <Empty />
                                     </td>
@@ -186,46 +211,48 @@ export default function TableCompanyAdmin({ columns }) {
                             </tbody>
                         </table>
 
-                        <div className="w-full flex-[0_0_auto] px-[calc(1.5rem/2)] mt-[3rem] flex justify-center items-center">
-                            <div className="flex pl-0">
-                                <button
-                                    className={`text-gray-500 p-[10px_16px] transition-all duration-500 ease border mx-[4px] my-0 text-[1rem] rounded-[10px] text-lg disabled:cursor-not-allowed disabled:bg-gray-100 hover:bg-blue-500`}
-                                    disabled={currentPage === 1 && true}
-                                    onClick={handlePrevPaginate}
-                                >
-                                    &laquo;
-                                </button>
-
-                                {pages.map((item, index) => (
+                        {currentItemPage.length > 0 && (
+                            <div className="w-full flex-[0_0_auto] px-[calc(1.5rem/2)] mt-[3rem] flex justify-center items-center">
+                                <div className="flex pl-0">
                                     <button
-                                        className={`hover:bg-blue-500 text-lg p-[10px_16px] transition-all duration-500 ease border mx-[4px] rounded-[10px] ${
-                                            currentPage === item ? 'bg-blue-500 text-white' : 'text-[#45595B]'
-                                        }`}
-                                        key={index}
-                                        onClick={() => setCurrentPage(item)}
+                                        className={`text-gray-500 p-[10px_16px] transition-all duration-500 ease border mx-[4px] my-0 text-[1rem] rounded-[10px] text-lg disabled:cursor-not-allowed disabled:bg-gray-100 hover:bg-blue-500`}
+                                        disabled={currentPage === 1 && true}
+                                        onClick={handlePrevPaginate}
                                     >
-                                        {item}
+                                        &laquo;
                                     </button>
-                                ))}
 
-                                <button
-                                    className={`text-lg p-[10px_16px] transition-all duration-500 ease border mx-[4px] rounded-[10px] hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100`}
-                                    disabled={currentPage > totalItems / itemPerPage && true}
-                                    onClick={handleNextPaginate}
-                                >
-                                    &raquo;
-                                </button>
-                            </div>
+                                    {pages.map((item, index) => (
+                                        <button
+                                            className={`hover:bg-blue-500 text-lg p-[10px_16px] transition-all duration-500 ease border mx-[4px] rounded-[10px] ${
+                                                currentPage === item ? 'bg-blue-500 text-white' : 'text-[#45595B]'
+                                            }`}
+                                            key={index}
+                                            onClick={() => setCurrentPage(item)}
+                                        >
+                                            {item}
+                                        </button>
+                                    ))}
 
-                            <div className="">
-                                <Select
-                                    style={{ width: '180px', marginLeft: '10px' }}
-                                    options={options}
-                                    value={`${itemPerPage}`}
-                                    onChange={handleSelectItem}
-                                />
+                                    <button
+                                        className={`text-lg p-[10px_16px] transition-all duration-500 ease border mx-[4px] rounded-[10px] hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100`}
+                                        disabled={currentPage > totalItems / itemPerPage && true}
+                                        onClick={handleNextPaginate}
+                                    >
+                                        &raquo;
+                                    </button>
+                                </div>
+
+                                <div className="">
+                                    <Select
+                                        style={{ width: '180px', marginLeft: '10px' }}
+                                        options={options}
+                                        value={`${itemPerPage}`}
+                                        onChange={handleSelectItem}
+                                    />
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </div>
             </Loading>

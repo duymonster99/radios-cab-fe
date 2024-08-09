@@ -1,45 +1,42 @@
 // libraries
-import { useEffect, useState } from 'react';
-import { CloseCircleOutlined, MailFilled } from '@ant-design/icons';
+import { useContext, useEffect, useState } from 'react';
+import { CheckCircleOutlined, DeleteFilled, EditOutlined, EyeTwoTone, MailFilled } from '@ant-design/icons';
 import { Empty, message, Select } from 'antd';
 import { Tooltip } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
+import { jwtDecode } from 'jwt-decode';
+
+// components
 
 // services
+import { DataContext } from '../../../Hooks/context';
 import {
-    getAdminService,
+    deleteCompanyService,
+    deleteDriverService,
+    getCompanyService,
+    getDriverService,
+    getOneDriverService,
     putAdminService,
+    putCompanyService,
+    putDriverService,
 } from '../../../Services/apiService';
 import { useMutationHook } from '../../../Hooks/useMutation';
 import Loading from '../../../Helper/Loading';
+import ViewDriverProfile from './ViewProfileDriver';
 
-// Data
-const options = [
-    {
-        value: '10',
-        label: '10 Items Per Page',
-    },
-    {
-        value: '15',
-        label: '15 Items Per Page',
-    },
-    {
-        value: '20',
-        label: '20 Items Per Page',
-    },
-    {
-        value: '50',
-        label: '50 Items Per Page',
-    },
-];
-
-export default function TableDriverAdmin({ columns }) {
+export default function TableNewDriver({ columns }) {
     const [drivers, setDrivers] = useState([]);
+    const [openView, setOpenView] = useState(null);
     const [isCall, setIsCall] = useState(true);
+    const { company } = useContext(DataContext);
+    const [openAdd, setOpenAdd] = useState(false);
     const [loading, setLoading] = useState(false);
 
     // ? ----------------------------- when component mounted -------------------------
-    const getAllDriverInAdminCompany = () => getAdminService(`Admin/getAllDrivers`);
+    const tokenStorage = localStorage.getItem('tokenCompany');
+    const { unique_name } = jwtDecode(tokenStorage);
+    
+    const getAllDriverInAdminCompany = () => getOneDriverService(`Driver/company/${unique_name}/drivers`);
 
     const { data, isSuccess, isLoading, isPending, isError } = useQuery({
         queryKey: ['queryDrivers'],
@@ -48,9 +45,9 @@ export default function TableDriverAdmin({ columns }) {
     });
 
     useEffect(() => {
-        if (isSuccess) {
-            const filterDriverActive = data?.data?.filter((driver) => driver.isActive === true)
-            setDrivers(filterDriverActive);
+        if (isSuccess) {   
+            const filterActive = data.drivers.filter((company) => company.isActive === false);      
+            setDrivers(filterActive);
             setIsCall(false);
             setLoading(false);
         }
@@ -68,32 +65,12 @@ export default function TableDriverAdmin({ columns }) {
         rows.push(columns[i].accessorKey);
     }
 
-    // ? ------------------------------ HANDLE PAGINATE ---------------------------
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemPerPage, setItemPerPage] = useState(10);
-    const lastItemIndex = currentPage * itemPerPage;
-    const firstItemIndex = lastItemIndex - itemPerPage;
-
-    const currentItemPage = drivers?.slice(firstItemIndex, lastItemIndex) ?? [];
-
-    // handle number paginate
-    let pages = [];
-    const totalItems = drivers?.length;
-    for (let i = 1; i <= Math.ceil(totalItems / itemPerPage); i++) {
-        pages.push(i);
+    // ? ---------------------------------------- HANDLE OPEN VIEW ---------------------------------
+    const [driver, setDriver] = useState(null)
+    const handleOpenView = (id) => {
+        setDriver(id)
+        setOpenView(true)
     }
-
-    const handlePrevPaginate = () => {
-        setCurrentPage(currentPage - 1);
-    };
-
-    const handleNextPaginate = () => {
-        setCurrentPage(currentPage + 1);
-    };
-
-    const handleSelectItem = (value) => {
-        setItemPerPage(value);
-    };
 
     // ? ----------------------- HANDLE SEND MAIL -----------------------------------
     const handleSendmail = (email) => {
@@ -107,7 +84,7 @@ export default function TableDriverAdmin({ columns }) {
 
     const handleActiveAccount = (id) => {
         const dataUpdate = {
-            isActive: false
+            isActive: true
         }
 
         mutation.mutate({ url: `Admin/updateDriver/${id}`, data: dataUpdate })
@@ -153,27 +130,35 @@ export default function TableDriverAdmin({ columns }) {
                             </thead>
 
                             <tbody>
-                                {currentItemPage !== undefined &&
-                                    currentItemPage.length > 0 &&
-                                    currentItemPage.map((item, index) => (
+                                {drivers !== undefined &&
+                                    drivers.length > 0 &&
+                                    drivers.map((item, index) => (
                                         <tr key={index} className="border-b-[1px] hover:bg-[#e8e8e9] px-3">
                                             {rows.map((row) => (
                                                 <td className="py-[.8rem] pl-3">
                                                     {row !== 'isActive' && item[row]}
-                                                    {row === 'isActive' && item[row] === true && 'Approved'}
-                                                    {row === 'isActive' && item[row] === false && 'Pending approval'}
+                                                    {row === 'isActive' && 'Pending approval'}
                                                 </td>
                                             ))}
 
                                             <td className="py-[.8rem]">
-                                                <Tooltip title="Disactive Driver">
+                                                <Tooltip title="Submit Profile">
                                                     <button
                                                         className="duration-500 rounded-[50%] p-[.5rem_.6rem] hover:bg-[#b5b5b5]"
                                                         onClick={() => handleActiveAccount(item.id)}
                                                     >
-                                                        <CloseCircleOutlined
-                                                            style={{ color: 'red', fontSize: '1.2rem' }}
+                                                        <CheckCircleOutlined
+                                                            style={{ color: 'green', fontSize: '1.2rem' }}
                                                         />
+                                                    </button>
+                                                </Tooltip>
+
+                                                <Tooltip title="View Full Profile">
+                                                    <button
+                                                        className="duration-500 rounded-[50%] p-[.5rem_.6rem] hover:bg-[#b5b5b5]"
+                                                        onClick={() => handleOpenView(item.id)}
+                                                    >
+                                                        <EyeTwoTone style={{ fontSize: '1.2rem' }} />
                                                     </button>
                                                 </Tooltip>
 
@@ -189,61 +174,18 @@ export default function TableDriverAdmin({ columns }) {
                                         </tr>
                                     ))}
 
-                                {currentItemPage !== undefined && currentItemPage.length === 0 && (
+                                {drivers !== undefined && drivers.length === 0 && (
                                     <td colSpan={6} className="pt-5">
                                         <Empty />
                                     </td>
                                 )}
                             </tbody>
                         </table>
-
-                        {currentItemPage !== null && currentItemPage !== undefined && currentItemPage.length > 0 && (
-                            <div className="w-full flex-[0_0_auto] px-[calc(1.5rem/2)] mt-[3rem] flex justify-center items-center">
-                                <div className="flex pl-0">
-                                    <button
-                                        className={`text-gray-500 p-[10px_16px] transition-all duration-500 ease border mx-[4px] my-0 text-[1rem] rounded-[10px] text-lg disabled:cursor-not-allowed disabled:bg-gray-100 hover:bg-blue-500`}
-                                        disabled={currentPage === 1 && true}
-                                        onClick={handlePrevPaginate}
-                                    >
-                                        &laquo;
-                                    </button>
-
-                                    {pages.map((item, index) => (
-                                        <button
-                                            className={`hover:bg-blue-500 text-lg p-[10px_16px] transition-all duration-500 ease border mx-[4px] rounded-[10px] ${
-                                                currentPage === item ? 'bg-blue-500 text-white' : 'text-[#45595B]'
-                                            }`}
-                                            key={index}
-                                            onClick={() => setCurrentPage(item)}
-                                        >
-                                            {item}
-                                        </button>
-                                    ))}
-
-                                    <button
-                                        className={`text-lg p-[10px_16px] transition-all duration-500 ease border mx-[4px] rounded-[10px] hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100`}
-                                        disabled={currentPage > totalItems / itemPerPage && true}
-                                        onClick={handleNextPaginate}
-                                    >
-                                        &raquo;
-                                    </button>
-                                </div>
-
-                                <div className="">
-                                    <Select
-                                        style={{ width: '180px', marginLeft: '10px' }}
-                                        options={options}
-                                        value={`${itemPerPage}`}
-                                        onChange={handleSelectItem}
-                                    />
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
             </Loading>
 
-            {/* <ViewDriverProfile openView={openView} setOpenView={setOpenView} id={driver} /> */}
+            <ViewDriverProfile openView={openView} setOpenView={setOpenView} id={driver} setIsCall={setIsCall} />
         </div>
     );
 }

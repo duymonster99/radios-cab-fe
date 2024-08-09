@@ -70,7 +70,6 @@ export default function LoginDriver(props) {
     useEffect(() => {
         if (isSuccess) {
             const token = data?.token;
-            localStorage.setItem('tokenDriver', token);
             
             if (token) {
                 const access_token = jwtDecode(token)
@@ -82,7 +81,8 @@ export default function LoginDriver(props) {
                         sessionStorage.setItem('company', saveId)
                         navigate('/app-driver/additional-profile');
                     } 
-                    else if(data?.driver?.isActive === false) {
+                    else if(data?.driver?.isActive === true) {
+                        localStorage.setItem('tokenDriver', token);
                         message.success('Login Successfully!');
                         navigate('/app-driver/dashboard');
                     }

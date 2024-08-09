@@ -4,8 +4,10 @@ import { DataProvider } from '../CompanyProvider/DataProvider';
 import Dashboard from './dashboard';
 
 export default function DashboardLayout() {
+    const breadcrumb = "Dashboard"
+
     return (
-        <DataProvider>
+        <DataProvider breadcrumb={breadcrumb}>
             <AdminLayout>
                 <Dashboard></Dashboard>
             </AdminLayout>

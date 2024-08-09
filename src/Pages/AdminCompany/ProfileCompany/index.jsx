@@ -7,8 +7,10 @@ import { DataProvider } from '../CompanyProvider/DataProvider';
 
 
 export default function ProfileCompanyLayout() {
+    const breadcrumb = "Profile"
+
     return (
-        <DataProvider>
+        <DataProvider breadcrumb={breadcrumb}>
             <AdminLayout>
                 <ProfileCompany />
             </AdminLayout>

@@ -1,8 +1,11 @@
+// libraries
 import { EyeInvisibleOutlined, EyeOutlined } from '@ant-design/icons';
 import { Button, Input, message, Modal } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import Loading from '../../../../../Helper/Loading';
 import { useEffect, useState } from 'react';
+
+// services
+import Loading from '../../../../../Helper/Loading';
 import { useMutationHook } from '../../../../../Hooks/useMutation';
 import { postDriverService } from '../../../../../Services/apiService';
 
@@ -22,7 +25,7 @@ export default function FormCreateDriver({ openForm, setOpenForm, cid }) {
         driverFullName: '',
         driverMobile: '',
         password: '',
-        companyId: cid
+        companyId: cid,
     });
 
     const [passwordConfirm, setPasswordConfirm] = useState('');
@@ -43,7 +46,7 @@ export default function FormCreateDriver({ openForm, setOpenForm, cid }) {
             driverFullName: '',
             driverMobile: '',
             password: '',
-            companyId: cid
+            companyId: cid,
         });
 
         setPasswordConfirm('');
@@ -64,7 +67,7 @@ export default function FormCreateDriver({ openForm, setOpenForm, cid }) {
 
         if (formRegister.password === '') {
             errors.password = 'Please enter your password';
-        } 
+        }
         // else if (formRegister.password.length < 8) {
         //     errors.password = 'Password must have at least 8 characters';
         // }
@@ -87,18 +90,23 @@ export default function FormCreateDriver({ openForm, setOpenForm, cid }) {
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
-            handleSubmitRegister()
+            handleSubmitRegister();
         }
-    }
+    };
 
-    const { isSuccess, isLoading, isError, isPending } = mutation;
+    const { isSuccess, isLoading, isError, isPending, data } = mutation;
 
     // ? ======================================================== handle after post api =======================================
     const navigate = useNavigate();
 
     useEffect(() => {
         if (isSuccess) {
-            message.success('Register successfully');
+            message.success('Register successfully! Please complete your profile to continue!');
+            const driverId = JSON.stringify(data?.driver.id);
+            sessionStorage.setItem('driverId', driverId);
+            const saveId = JSON.stringify(data.driver?.companyId);
+            sessionStorage.setItem('company', saveId);
+
             navigate('/app-driver/additional-profile');
         } else if (isError) {
             message.error('Registration failed! Please check your registration information again!');
@@ -107,14 +115,12 @@ export default function FormCreateDriver({ openForm, setOpenForm, cid }) {
                 ...errorMessage,
                 driverMobile: mutation.error?.response?.data?.message,
             });
-            
-            setLoadingPage(false)
+
+            setLoadingPage(false);
         } else if (isLoading || isPending) {
             setLoadingPage(true);
         }
     }, [isSuccess, isError, isLoading, mutation.error, isPending]);
-
-    console.log(mutation);
 
     return (
         <>

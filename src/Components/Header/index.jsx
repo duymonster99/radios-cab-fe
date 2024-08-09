@@ -3,45 +3,15 @@ import { FileDoneOutlined, UserOutlined } from '@ant-design/icons';
 import { faBars, faMagnifyingGlass, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Logout } from '@mui/icons-material';
-import { Avatar, Dropdown, Space } from 'antd';
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Avatar, Dropdown, message, Space } from 'antd';
+import { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 // images
 import Logo from '../../Assets/img/Logo.jpg'
-
-const items = [
-    {
-        label: (
-            <Link target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
-                <p>Thông tin tài khoản</p>
-            </Link>
-        ),
-        key: '0',
-        icon: <UserOutlined size={16} />,
-    },
-    {
-        label: (
-            <Link rel="noopener noreferrer" href="https://www.aliyun.com">
-                <p>Quản lý đơn hàng</p>
-            </Link>
-        ),
-        key: '1',
-        icon: <FileDoneOutlined />
-    },
-    {
-        type: 'divider',
-    },
-    {
-        label: (
-            <Link rel="noopener noreferrer" href="https://www.aliyun.com">
-                <p>Đăng xuất</p>
-            </Link>
-        ),
-        key: '3',
-        icon: <Logout />
-    },
-];
+import { jwtDecode } from 'jwt-decode';
+import { getAdminService } from '../../Services/apiService';
+import { useQuery } from '@tanstack/react-query';
 
 const NavBar = ({ title, slug }) => {
     const { pathname } = useLocation()
@@ -62,6 +32,62 @@ const NavBar = ({ title, slug }) => {
 
 export default function HeaderLayout() {
     const [accountDetail, setAccountDetail] = useState(null);
+    const tokenStorage = localStorage.getItem('tokenUser')
+    let id
+
+    if (tokenStorage) {
+        const { unique_name } = jwtDecode(tokenStorage)
+        id = unique_name
+    }
+    
+    const navigate = useNavigate()
+
+    // ? =================== GET USER ===================
+    const getUserToken = () => getAdminService(`Admin/getUserById/${id}`)
+
+    const { data, isSuccess } = useQuery({
+        queryKey: ['queryUser'],
+        queryFn: getUserToken,
+        retry: false
+    })
+
+    useEffect(() => {
+        if (isSuccess) {
+            setAccountDetail(data.data)
+        }
+    }, [isSuccess, data])
+
+    // ? ===================== HANDLE LOGOUT ====================
+    const handleLogout = () => {
+        localStorage.removeItem('tokenUser');
+        message.success('Logout Successfully!');
+        navigate("/login")
+    };
+
+    const items = [
+        {
+            label: (
+                <Link target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
+                    <p>Thông tin tài khoản</p>
+                </Link>
+            ),
+            key: '0',
+            icon: <UserOutlined size={16} />,
+        },
+        {
+            type: 'divider',
+        },
+        {
+            label: (
+                <Link>
+                    <p>Đăng xuất</p>
+                </Link>
+            ),
+            key: '2',
+            icon: <Logout />,
+            onClick: handleLogout
+        },
+    ];
 
     return (
         <div className="w-full px-[.75rem] mx-auto transition-all duration-500 ease bg-[#fff] shadow-[0_0.5rem_1rem_rgba(0,0,0,.15)]">
@@ -96,7 +122,7 @@ export default function HeaderLayout() {
                                     className="text-[#81c408] text-[1rem] font-black my-auto"
                                 />
                             </button>
-                            {accountDetail !== null && accountDetail.length > 0 ? (
+                            {accountDetail !== null && (
                                 <div className="flex items-center">
                                     <Dropdown
                                         menu={{
@@ -112,12 +138,14 @@ export default function HeaderLayout() {
                                                     }}
                                                     icon={<UserOutlined />}
                                                 />
-                                                <p>{accountDetail[0].fullName}</p>
+                                                <p>{accountDetail.fullName}</p>
                                             </Space>
                                         </Link>
                                     </Dropdown>
                                 </div>
-                            ) : (
+                            )}
+
+                            {accountDetail === null && (
                                 <Link to="/login" className="my-auto text-[#81c408]">
                                     <FontAwesomeIcon
                                         icon={faUser}

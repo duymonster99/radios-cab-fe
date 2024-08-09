@@ -20,9 +20,9 @@ function Footer() {
                         <div className="lg:w-[25%] lg:flex-[0_0_auto] shrink-0 flex items-end w-full mt-[2rem]">
                             <Link href="#">
                                 <h1 className="my-0 xl:text-[2.5rem] text-[calc(1.375rem+1.5vw)] text-[#81c408] font-bold leading-[1.2]">
-                                    Fruitables
+                                    Radio Cabs
                                 </h1>
-                                <p className="text-[rgb(255,181,36)] mb-0 mt-0">Fresh products</p>
+                                <p className="text-[rgb(255,181,36)] mb-0 mt-0">Taxi</p>
                             </Link>
                         </div>
 

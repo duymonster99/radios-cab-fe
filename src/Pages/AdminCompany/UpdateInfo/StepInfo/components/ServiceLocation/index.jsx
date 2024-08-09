@@ -125,13 +125,13 @@ export default function ServiceLocation({ stateBtn, setLoading }) {
         if (locationSuccess) {
             sessionStorage.clear();
             message.success("Congratulations you have completed the account registration process. Please wait for your account to be verified.")
-            navigate('/login/company');
+            navigate('/');
         }
 
         if (locationPending ) {
             setLoading(true);
         }
-    }, [locationSuccess, locationPending, data]);
+    }, [locationSuccess, locationPending]);
 
     return (
         <div className="w-[60%] block mx-auto text-lg">

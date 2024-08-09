@@ -16,8 +16,10 @@ export default function DriverManageLayout() {
         { accessorKey: 'isActive', header: 'Profile Status' },
     ];
 
+    const breadcrumb = "Driver Manage"
+
     return (
-        <DataProvider>
+        <DataProvider breadcrumb={breadcrumb}>
             <AdminLayout>
                 <div className="w-full p-[1.5rem] mx-auto">
                     <div className="flex flex-col overflow-auto rounded-[1rem] shadow-[0px_3px_5px_rgba(0,0,0,0.4)]">

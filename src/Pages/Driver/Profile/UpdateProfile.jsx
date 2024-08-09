@@ -5,11 +5,12 @@ import { PlusOutlined } from '@ant-design/icons';
 import { jwtDecode } from 'jwt-decode';
 
 // services
-import { putCompanyImageService, putCompanyService } from '../../../Services/apiService';
+import {
+    putAdminImageService,
+    putAdminService,
+} from '../../../Services/apiService';
 import { useMutationHook } from '../../../Hooks/useMutation';
 import Loading from '../../../Helper/Loading';
-
-const { TextArea } = Input;
 
 const getBase64 = (file) =>
     new Promise((resolve, reject) => {
@@ -19,20 +20,16 @@ const getBase64 = (file) =>
         reader.onerror = (error) => reject(error);
     });
 
-export default function FormEditProfile({ openFormEdit, setOpenFormEdit, company, setIsCall }) {
+export default function EditProfileDriver({ openFormEdit, setOpenFormEdit, driver, setIsCall }) {
     const [loading, setLoading] = useState(false);
     const [fileList, setFileList] = useState([]);
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
 
     const [dataInput, setDataInput] = useState({
-        companyName: '',
-        companyTaxCode: '',
-        contactPerson: '',
-        contactPersonMobile: '',
-        companyTelephone: '',
-        companyEmail: '',
-        description: ''
+        driverFullName: '',
+        driverMobile: '',
+        driverEmail: '',
     });
 
     // ? ---------------------- handle upload file ------------------------------
@@ -68,18 +65,14 @@ export default function FormEditProfile({ openFormEdit, setOpenFormEdit, company
 
     // ? -------------------- handle set state data company -------------------------
     useEffect(() => {
-        if (company) {
+        if (driver) {
             setDataInput({
-                companyName: company.companyName,
-                companyTaxCode: company.companyTaxCode,
-                contactPerson: company.contactPerson,
-                contactPersonMobile: company.contactPersonMobile,
-                companyTelephone: company.companyTelephone,
-                companyEmail: company.companyEmail,
-                description: company.description
+                driverFullName: driver.driverFullName,
+                driverMobile: driver.driverMobile,
+                driverEmail: driver.driverEmail,
             });
         }
-    }, [company]);
+    }, [driver]);
 
     // ? ============================================ handle data edit company ==========================================
     const handleChange = (e) => {
@@ -89,40 +82,42 @@ export default function FormEditProfile({ openFormEdit, setOpenFormEdit, company
         });
     };
 
-    const mutation = useMutationHook((props) => putCompanyService(props));
-    const mutationImage = useMutationHook((props) => putCompanyImageService(props));
+    const mutation = useMutationHook((props) => putAdminService(props));
+    const mutationImage = useMutationHook((props) => putAdminImageService(props));
 
-    // get id company
-    const tokenStorage = localStorage.getItem('tokenCompany');
-    const { unique_name } = jwtDecode(tokenStorage);
-
-    const { isSuccess: postSuccess, isLoading, isPending } = mutation;
+    const { isSuccess: postSuccess, isPending } = mutation;
     const { isSuccess: postImageSuccess, isPending: pendingImage } = mutationImage;
 
     const handleSubmitEdit = () => {
-        const formDataImage = new FormData();
-        const arrayImage = [...fileList];
-
-        arrayImage.map((image) => {
-            formDataImage.append('formFile', image.originFileObj);
-        });
-
-        mutation.mutate({ url: `CompanyInfoUpdate/company/${unique_name}/update`, data: dataInput });
-
-        mutationImage.mutate({ url: `CompanyInfoUpdate/company/${unique_name}/update-image`, data: formDataImage });
+        mutation.mutate({ url: `Admin/updateDriver/${driver.id}`, data: dataInput });
     };
 
     useEffect(() => {
-        if (postSuccess && postImageSuccess) {
-            message.success('Update company successfully!');
+        if (postSuccess) {
+            const formDataImage = new FormData();
+            const arrayImage = [...fileList];
+
+            arrayImage.map((image) => {
+                formDataImage.append('formFileProfile', image.originFileObj);
+            });
+            mutationImage.mutate({ url: `Driver/driver/${driver.id}/update`, data: formDataImage });
+        }
+        if (isPending) {
+            setLoading(true);
+        }
+    }, [postSuccess, isPending]);
+
+    useEffect(() => {
+        if (postImageSuccess) {
+            message.success('Update Driver successfully!');
             setOpenFormEdit(false);
             setLoading(false);
             setIsCall(true);
         }
-        if (isPending || pendingImage) {
+        if (pendingImage) {
             setLoading(true);
         }
-    }, [postSuccess, isPending, postImageSuccess, pendingImage]);
+    }, [postImageSuccess, pendingImage])
 
     return (
         <>
@@ -131,92 +126,37 @@ export default function FormEditProfile({ openFormEdit, setOpenFormEdit, company
                     <div className="">
                         <div className="block mt-4">
                             <label>
-                                <span className="text-red-600">* </span>Company Name
+                                <span className="text-red-600">* </span>Driver Name
                             </label>
                             <Input
-                                value={dataInput.companyName}
-                                name="companyName"
+                                value={dataInput.driverFullName}
+                                name="driverFullName"
                                 onChange={handleChange}
-                                placeholder="Company Name"
+                                placeholder="Driver Name"
                             />
                         </div>
 
                         <div className="block mt-4">
                             <label>
-                                <span className="text-red-600">* </span>Company Tax Code
+                                <span className="text-red-600">* </span>Driver Mobile
                             </label>
                             <Input
-                                type="number"
-                                value={dataInput.companyTaxCode}
-                                name="companyTaxCode"
+                                value={dataInput.driverMobile}
+                                name="driverMobile"
                                 onChange={handleChange}
-                                placeholder="Company Tax Code"
+                                placeholder="Driver Mobile"
                             />
                         </div>
 
                         <div className="block mt-4">
                             <label>
-                                <span className="text-red-600">* </span>Contact Person
+                                <span className="text-red-600">* </span>Driver Email
                             </label>
                             <Input
-                                value={dataInput.contactPerson}
-                                name="contactPerson"
+                                value={dataInput.driverEmail}
+                                name="driverEmail"
                                 onChange={handleChange}
-                                placeholder="Contact Person"
-                            />
-                        </div>
-
-                        <div className="block mt-4">
-                            <label>
-                                <span className="text-red-600">* </span>Contact Person Number
-                            </label>
-                            <Input
-                                type="number"
-                                value={dataInput.contactPersonMobile}
-                                name="contactPersonMobile"
-                                onChange={handleChange}
-                                placeholder="Contact Person Number"
-                            />
-                        </div>
-
-                        <div className="block mt-4">
-                            <label>
-                                <span className="text-red-600">* </span>Company Telephone
-                            </label>
-                            <Input
-                                type="number"
-                                value={dataInput.companyTelephone}
-                                name="companyTelephone"
-                                onChange={handleChange}
-                                placeholder="Company Telephone"
-                            />
-                        </div>
-
-                        <div className="block mt-4">
-                            <label>
-                                <span className="text-red-600">* </span>Company Email
-                            </label>
-                            <Input
-                                value={dataInput.companyEmail}
-                                name="companyEmail"
-                                onChange={handleChange}
-                                placeholder="Company Email"
-                            />
-                        </div>
-
-                        <div className="block mt-4">
-                            <label>
-                                <span className="text-red-600">* </span>Description
-                            </label>
-                            <TextArea
-                                value={dataInput.description}
-                                name="description"
-                                onChange={handleChange}
-                                placeholder="Company Description"
-                                autoSize={{
-                                    minRows: 3,
-                                    maxRows: 8,
-                                }}
+                                placeholder="Driver Email"
                             />
                         </div>
 

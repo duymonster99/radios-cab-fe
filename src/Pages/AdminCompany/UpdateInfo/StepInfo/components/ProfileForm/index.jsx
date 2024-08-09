@@ -6,9 +6,8 @@ import { getProvincesWithDetail } from 'vietnam-provinces';
 // services
 import { useMutationHook } from '../../../../../../Hooks/useMutation';
 import { putCompanyService } from '../../../../../../Services/apiService';
-import { PlusOutlined } from '@ant-design/icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
+
+const { TextArea } = Input
 
 export default function FormEditProfile({ stateBtn, setStateBtn, current, setCurrent, setLoading }) {
     // ? ----------------------------------------- deps
@@ -18,7 +17,6 @@ export default function FormEditProfile({ stateBtn, setStateBtn, current, setCur
     const [shouldFetched, setShouldFetched] = useState(false);
     const dataStorage = sessionStorage.getItem('profileInfo');
     const profileInfo = JSON.parse(dataStorage);
-    const [fileList, setFileList] = useState([]);
 
     // ? ----------------------------------------- check session storage profile info -----------------------------
     if (profileInfo !== null && profileInfo !== undefined && profileInfo !== '') {
@@ -27,30 +25,19 @@ export default function FormEditProfile({ stateBtn, setStateBtn, current, setCur
 
     const [provinceSelectValue, setProvinceSelectValue] = useState({
         code: '',
-        name: profileInfo?.companyCity ?? '',
+        name: '',
     });
     const [districtSelectValue, setDistrictSelectValue] = useState({
         code: '',
-        name: profileInfo?.companyDistrict ?? '',
+        name: '',
     });
     const [wardSelectValue, setWardSelectValue] = useState({
         code: '',
-        name: profileInfo?.companyWard ?? '',
+        name: '',
     });
 
     const [formSubmit, setFormSubmit] = useState({
-        contactPersonName: profileInfo?.contactPersonName ?? '',
-        designation: profileInfo?.designation ?? '',
-        contactPersonMobile: profileInfo?.contactPersonMobile ?? '',
-        companyTelephone: profileInfo?.companyTelephone ?? '',
-        companyAddress: profileInfo?.companyAddress ?? '',
-        companyWard: profileInfo?.companyWard ?? '',
-        companyDistrict: profileInfo?.companyDistrict ?? '',
-        companyCity: profileInfo?.companyCity ?? '',
-    });
-
-    const [errorMessage, setErrorMessage] = useState({
-        contactPersonName: '',
+        contactPerson: '',
         designation: '',
         contactPersonMobile: '',
         companyTelephone: '',
@@ -58,6 +45,19 @@ export default function FormEditProfile({ stateBtn, setStateBtn, current, setCur
         companyWard: '',
         companyDistrict: '',
         companyCity: '',
+        description: ''
+    });
+
+    const [errorMessage, setErrorMessage] = useState({
+        contactPerson: '',
+        designation: '',
+        contactPersonMobile: '',
+        companyTelephone: '',
+        companyAddress: '',
+        companyWard: '',
+        companyDistrict: '',
+        companyCity: '',
+        description: ''
     });
 
     // ? =========================================== handle provinces =========================================
@@ -140,30 +140,6 @@ export default function FormEditProfile({ stateBtn, setStateBtn, current, setCur
         }));
     }, [provinceSelectValue, districtSelectValue, wardSelectValue]);
 
-    // ? ---------------------- handle upload file ------------------------------
-    const handleUploadImage = (e) => {
-        const files = e.target.files;
-        setFileList(files);
-    };
-
-    const handleDeleteImage = () => {
-        setFileList([]);
-    };
-
-    // ? --------------------- create button upload ------------------------------
-    const uploadButton = (
-        <label
-            className="h-[100px] w-[100px] flex flex-col justify-center items-center cursor-pointer border-2 border-dashed border-[#cacaca] bg-[rgba(255,255,255,1)] p-[1.5rem] rounded-xl"
-            for="file"
-        >
-            <PlusOutlined className="text-gray-500" />
-            <div className="flex items-center">
-                <span className='font-["Open_Sans"] text-gray-500'>Upload</span>
-            </div>
-            <input type="file" id="file" accept="image/*" className="hidden" onChange={handleUploadImage} />
-        </label>
-    );
-
     // ? ======================================================== handle next =============================================
     useEffect(() => {
         if (stateBtn === 'next') {
@@ -216,26 +192,15 @@ export default function FormEditProfile({ stateBtn, setStateBtn, current, setCur
     // get id company
     const tokenStorage = sessionStorage.getItem('pricingInfo');
     const { cid } = JSON.parse(tokenStorage);
-    const formData = new FormData();
-
+    
     const mutationProfile = useMutationHook((props) => putCompanyService(props));
     const { isSuccess, isPending } = mutationProfile;
-
+    
     useEffect(() => {
         if (shouldFetched) {
-            const arrayImage = [...fileList];
-
-            arrayImage.map((image) => {
-                formData.append('companyImage', image);
-            });
-
-            Object.keys(formSubmit).forEach((key) => {
-                formData.append(key, formSubmit[key]);
-            });
-
             mutationProfile.mutate({
                 url: `CompanyInfoUpdate/company/${cid}/update`,
-                data: formData,
+                data: formSubmit,
             });
 
             setShouldFetched(false);
@@ -255,8 +220,6 @@ export default function FormEditProfile({ stateBtn, setStateBtn, current, setCur
         }
     }, [isSuccess, isPending]);
 
-    console.log(mutationProfile);
-
     return (
         <div className="block w-[60%] mx-auto text-lg">
             <div className="mt-4">
@@ -268,14 +231,14 @@ export default function FormEditProfile({ stateBtn, setStateBtn, current, setCur
                     <span className="text-red-600">* </span>Contact Person
                 </label>
                 <Input
-                    className={`${errorMessage.contactPersonName !== '' && 'border-red-600'}`}
-                    value={formSubmit.contactPersonName}
+                    className={`${errorMessage.contactPerson !== '' && 'border-red-600'}`}
+                    value={formSubmit.contactPerson}
                     onChange={handleChangeProfile}
-                    name="contactPersonName"
+                    name="contactPerson"
                     placeholder="Contact Person"
                 />
-                {errorMessage.contactPersonName !== '' && (
-                    <p className="ml-2 text-red-500">{errorMessage.contactPersonName}</p>
+                {errorMessage.contactPerson !== '' && (
+                    <p className="ml-2 text-red-500">{errorMessage.contactPerson}</p>
                 )}
             </div>
 
@@ -324,6 +287,27 @@ export default function FormEditProfile({ stateBtn, setStateBtn, current, setCur
                 />
                 {errorMessage.companyTelephone !== '' && (
                     <p className="ml-2 text-red-500">{errorMessage.companyTelephone}</p>
+                )}
+            </div>
+
+            <div className="block mt-4">
+                <label>
+                    <span className="text-red-600">* </span>Company Description
+                </label>
+                <TextArea
+                    type="number"
+                    className={`${errorMessage.description !== '' && 'border-red-600'}`}
+                    value={formSubmit.description}
+                    onChange={handleChangeProfile}
+                    name="description"
+                    placeholder="Company description"
+                    autoSize={{
+                        minRows: 2,
+                        maxRows: 6,
+                    }}
+                />
+                {errorMessage.description !== '' && (
+                    <p className="ml-2 text-red-500">{errorMessage.description}</p>
                 )}
             </div>
 
@@ -411,34 +395,6 @@ export default function FormEditProfile({ stateBtn, setStateBtn, current, setCur
                         <p className="ml-2 text-red-500">{errorMessage.companyAddress}</p>
                     )}
                 </div>
-            </div>
-
-            <div className="block mb-4">
-                <label>
-                    <span className="text-red-600">* </span>Avatar
-                </label>
-                {fileList.length === 0 && uploadButton}
-                {fileList.length > 0 && (
-                    <>
-                        {[...fileList].map((item, index) => (
-                            <div className="relative w-[130px] h-[130px] rounded-[10px] border-2 border-dashed group">
-                                <img
-                                    key={index}
-                                    src={URL.createObjectURL(item)}
-                                    className="absolute top-0 rounded-[10px]"
-                                    alt=""
-                                />
-                                <button
-                                    className="absolute top-[50%] -translate-y-[50%] z-[100] left-[50%] -translate-x-[50%] text-red-600 hidden group-hover:block transition-all duration-0"
-                                    onClick={handleDeleteImage}
-                                >
-                                    <FontAwesomeIcon icon={faTrash} />
-                                </button>
-                                <div className="absolute top-0 left-0 w-full h-full bg-slate-50 hidden group-hover:block"></div>
-                            </div>
-                        ))}
-                    </>
-                )}
             </div>
         </div>
     );

@@ -1,0 +1,35 @@
+import { jwtDecode } from 'jwt-decode';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+const AuthAdmin = ({ path, children }) => {
+    // ? ------------------------------------ deps ------------------------------
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const navigate = useNavigate();
+
+    // ? -------------------------------------- get jwt token ------------------------
+    const tokenStorage = localStorage.getItem('tokenUser');
+
+    // check token exist ?
+    useEffect(() => {
+        if (tokenStorage === null || tokenStorage === undefined || tokenStorage === '') {
+            navigate('/login');
+        } else {
+            const { role } = jwtDecode(tokenStorage);
+            if (role === 'Admin') {
+                setIsAuthenticated(true);
+            }
+            else {
+                navigate(path);
+            }
+        }
+    }, [tokenStorage, navigate]);
+
+    if (!isAuthenticated) {
+        return null; // Or you can return a loading spinner or some placeholder
+    }
+
+    return <>{children}</>;
+};
+
+export default AuthAdmin;

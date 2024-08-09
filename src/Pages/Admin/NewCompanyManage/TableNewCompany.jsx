@@ -13,6 +13,7 @@ import {
 } from '../../../Services/apiService';
 import Loading from '../../../Helper/Loading';
 import { useMutationHook } from '../../../Hooks/useMutation';
+import ViewCompanyProfile from './ViewProfile';
 
 // components
 
@@ -75,54 +76,19 @@ export default function TableNewCompanyAdmin({ columns }) {
         rows.push(columns[i].accessorKey);
     }
 
-    // ? ------------------------------- HANDLE DELETE -------------------------
-    const deleteMutation = useMutationHook((props) => deleteCompanyService(props));
-    const { isSuccess: deleteLocation } = deleteMutation;
+    // ? ---------------------------------------- HANDLE OPEN VIEW ---------------------------------
+    const [companyId, setCompanyId] = useState(null);
 
-    const handleDelete = (id) => {
-        deleteMutation.mutate({ url: `AdminReferenceAction/company/${id}/delete` });
+    const handleOpenView = (id) => {
+        setCompanyId(id)
+        setOpenView(true)
     };
 
     useEffect(() => {
-        if (deleteLocation) {
-            message.success('Deleted Driver Successfully!');
-            setIsCall(true);
+        if (!openView) {
+            setCompanyId(null);
         }
-    }, [deleteLocation]);
-
-    // ? ------------------------------ HANDLE PAGINATE ---------------------------
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemPerPage, setItemPerPage] = useState(10);
-    const lastItemIndex = currentPage * itemPerPage;
-    const firstItemIndex = lastItemIndex - itemPerPage;
-
-    const currentItemPage = companies?.slice(firstItemIndex, lastItemIndex) ?? [];
-
-    // handle number paginate
-    let pages = [];
-    const totalItems = companies?.length;
-    for (let i = 1; i <= Math.ceil(totalItems / itemPerPage); i++) {
-        pages.push(i);
-    }
-
-    const handlePrevPaginate = () => {
-        setCurrentPage(currentPage - 1);
-    };
-
-    const handleNextPaginate = () => {
-        setCurrentPage(currentPage + 1);
-    };
-
-    const handleSelectItem = (value) => {
-        setItemPerPage(value);
-    };
-
-    // ? ---------------------------------------- HANDLE OPEN VIEW ---------------------------------
-    const [companyId, setCompanyId] = useState(null);
-    const handleOpenView = (id) => {
-        setCompanyId(id);
-        setOpenView(true);
-    };
+    }, [openView]);
 
     // ? ----------------------- HANDLE SEND MAIL -----------------------------------
     const handleSendmail = (email) => {
@@ -182,9 +148,9 @@ export default function TableNewCompanyAdmin({ columns }) {
                             </thead>
 
                             <tbody>
-                                {currentItemPage !== undefined &&
-                                    currentItemPage.length > 0 &&
-                                    currentItemPage.map((item, index) => (
+                                {companies !== undefined &&
+                                    companies.length > 0 &&
+                                    companies.map((item, index) => (
                                         <tr key={index} className="border-b-[1px] hover:bg-[#e8e8e9] px-3">
                                             {rows.map((row) => (
                                                 <td className="py-[.8rem] pl-3">
@@ -220,79 +186,25 @@ export default function TableNewCompanyAdmin({ columns }) {
                                                         className="duration-500 rounded-[50%] p-[.5rem_.6rem] hover:bg-[#b5b5b5]"
                                                         onClick={() => handleSendmail(item.driverEmail)}
                                                     >
-                                                        <MailFilled style={{ fontSize: '1.2rem' }} />
-                                                    </button>
-                                                </Tooltip>
-
-                                                <Tooltip title="Delete">
-                                                    <button
-                                                        className="duration-500 rounded-[50%] p-[.5rem_.6rem] hover:bg-[#b5b5b5]"
-                                                        onClick={() => handleDelete(item.id)}
-                                                    >
-                                                        <DeleteFilled
-                                                            style={{ color: '#dc3545', fontSize: '1.2rem' }}
-                                                        />
+                                                        <MailFilled style={{ fontSize: '1.2rem', color: "red" }} />
                                                     </button>
                                                 </Tooltip>
                                             </td>
                                         </tr>
                                     ))}
 
-                                {currentItemPage !== undefined && currentItemPage.length === 0 && (
+                                {companies !== undefined && companies.length === 0 && (
                                     <td colSpan={6} className="pt-5">
                                         <Empty />
                                     </td>
                                 )}
                             </tbody>
                         </table>
-
-                        {currentItemPage !== null && currentItemPage !== undefined && currentItemPage.length > 0 && (
-                            <div className="w-full flex-[0_0_auto] px-[calc(1.5rem/2)] mt-[3rem] flex justify-center items-center">
-                                <div className="flex pl-0">
-                                    <button
-                                        className={`text-gray-500 p-[10px_16px] transition-all duration-500 ease border mx-[4px] my-0 text-[1rem] rounded-[10px] text-lg disabled:cursor-not-allowed disabled:bg-gray-100 hover:bg-blue-500`}
-                                        disabled={currentPage === 1 && true}
-                                        onClick={handlePrevPaginate}
-                                    >
-                                        &laquo;
-                                    </button>
-
-                                    {pages.map((item, index) => (
-                                        <button
-                                            className={`hover:bg-blue-500 text-lg p-[10px_16px] transition-all duration-500 ease border mx-[4px] rounded-[10px] ${
-                                                currentPage === item ? 'bg-blue-500 text-white' : 'text-[#45595B]'
-                                            }`}
-                                            key={index}
-                                            onClick={() => setCurrentPage(item)}
-                                        >
-                                            {item}
-                                        </button>
-                                    ))}
-
-                                    <button
-                                        className={`text-lg p-[10px_16px] transition-all duration-500 ease border mx-[4px] rounded-[10px] hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100`}
-                                        disabled={currentPage > totalItems / itemPerPage && true}
-                                        onClick={handleNextPaginate}
-                                    >
-                                        &raquo;
-                                    </button>
-                                </div>
-
-                                <div className="">
-                                    <Select
-                                        style={{ width: '180px', marginLeft: '10px' }}
-                                        options={options}
-                                        value={`${itemPerPage}`}
-                                        onChange={handleSelectItem}
-                                    />
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
             </Loading>
 
-            {/* <ViewDriverProfile openView={openView} setOpenView={setOpenView} id={driver} /> */}
+            <ViewCompanyProfile openView={openView} setOpenView={setOpenView} id={openView ? companyId : null} />
         </div>
     );
 }

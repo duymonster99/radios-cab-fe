@@ -1,13 +1,23 @@
 // libraries
-import { Button, Input, Popconfirm, Select, Space } from 'antd';
+import { Button, Image, Input, message, Select, Space, Upload } from 'antd';
 import { useEffect, useState } from 'react';
 import { getProvincesWithDetail } from 'vietnam-provinces';
-import { useMutationHook } from '../../../Hooks/useMutation';
-import { getCompanyService, putDriverService } from '../../../Services/apiService';
-import Loading from '../../../Helper/Loading';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { jwtDecode } from 'jwt-decode';
+import { PlusOutlined } from '@ant-design/icons';
+
+// services
+import { useMutationHook } from '../../../Hooks/useMutation';
+import { getCompanyService, putAdminImageService, putAdminService } from '../../../Services/apiService';
+import Loading from '../../../Helper/Loading';
+
+const getBase64 = (file) =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+    });
 
 export default function CompletePage() {
     // ? ----------------------------------------- deps
@@ -20,6 +30,9 @@ export default function CompletePage() {
     const [values, setValues] = useState([]);
     const [listServiceType, setListServiceType] = useState([]);
     const options = [];
+    const [fileList, setFileList] = useState([]);
+    const [previewOpen, setPreviewOpen] = useState(false);
+    const [previewImage, setPreviewImage] = useState('');
 
     const [provinceSelectValue, setProvinceSelectValue] = useState({
         code: '',
@@ -36,7 +49,7 @@ export default function CompletePage() {
 
     const [formSubmit, setFormSubmit] = useState({
         driverEmail: '',
-        driverLicense: 'License',
+        driverLicense: '',
         registrationCar: '',
         address: '',
         ward: '',
@@ -54,9 +67,9 @@ export default function CompletePage() {
     });
 
     // ? =========================================== WHEN COMPONENT MOUNTED ====================================
-    const idStorage = sessionStorage.getItem('company')
-    const idC = JSON.parse(idStorage)
-    
+    const idStorage = sessionStorage.getItem('company');
+    const idC = JSON.parse(idStorage);
+
     const getCompanyById = () => getCompanyService(`AdminReferenceAction/company/${idC}`);
 
     const { data, isSuccess: getCompany } = useQuery({
@@ -73,7 +86,6 @@ export default function CompletePage() {
         }
     }, [data, getCompany]);
 
-
     for (let i = 0; i < listServiceType.length; i++) {
         const value = listServiceType[i].serviceType;
         options.push({
@@ -82,6 +94,37 @@ export default function CompletePage() {
             desc: value,
         });
     }
+
+    // ? ---------------------- handle upload file ------------------------------
+    const handlePreview = async (file) => {
+        if (!file.url && !file.preview) {
+            file.preview = await getBase64(file.originFileObj);
+        }
+        setPreviewImage(file.url || file.preview);
+        setPreviewOpen(true);
+    };
+
+    const handleChangeAvatar = ({ fileList: newFileList }) => setFileList(newFileList);
+
+    // ? --------------------- create button upload ------------------------------
+    const uploadButton = (
+        <button
+            style={{
+                border: 0,
+                background: 'none',
+            }}
+            type="button"
+        >
+            <PlusOutlined />
+            <div
+                style={{
+                    marginTop: 8,
+                }}
+            >
+                Upload
+            </div>
+        </button>
+    );
 
     // ? =========================================== handle provinces =========================================
     useEffect(() => {
@@ -189,11 +232,13 @@ export default function CompletePage() {
     }, [provinceSelectValue, districtSelectValue, wardSelectValue]);
 
     // ? ============================================ HANDLE SUBMIT ==============================================
-    const tokenStorage = localStorage.getItem('tokenDriver');
-    const { unique_name } = jwtDecode(tokenStorage);
+    const driverId = sessionStorage.getItem('driverId');
 
-    const mutation = useMutationHook((props) => putDriverService(props));
+    const mutation = useMutationHook((props) => putAdminService(props));
+    const mutationLicense = useMutationHook((props) => putAdminImageService(props));
+
     const { isSuccess, isPending } = mutation;
+    const { isSuccess: licenseSuccess, isPending: licensePending } = mutationLicense;
 
     const handleSubmit = () => {
         const errors = {};
@@ -229,22 +274,47 @@ export default function CompletePage() {
             });
         } else {
             mutation.mutate({
-                url: `Admin/updateDriver/${unique_name}`,
+                url: `Admin/updateDriver/${driverId}`,
                 data: formSubmit,
             });
         }
     };
 
+
     // ? ============================================ handle after complete profile ===========================
     useEffect(() => {
         if (isSuccess) {
+            const formDataLicense = new FormData();
+
+            const arrayLicense = [...fileList];
+
+            arrayLicense.map((image) => {
+                formDataLicense.append('formFileLicense', image.originFileObj);
+            });
+
+            mutationLicense.mutate({
+                url: `Driver/driver/${driverId}/update`,
+                data: formDataLicense,
+            });
+        }
+
+        if (isPending) {
+            setLoading(true)
+        }
+    }, [isSuccess]);
+
+    useEffect(() => {
+        if (licenseSuccess) {
+            message.success("Congratulations you have completed the account registration process. Please wait for your account to be verified.")
             setLoading(false);
             navigate('/login/driver');
         }
-        if (isPending) {
-            setLoading(true);
+
+        if (licensePending) {
+            setLoading(true)
         }
-    }, [isSuccess, isPending]);
+    }, [licenseSuccess, licensePending])
+
 
     return (
         <div className="w-full p-[2rem_.75rem] mx-auto bg-white z-[100]">
@@ -292,7 +362,7 @@ export default function CompletePage() {
 
                         <div className="block mt-4">
                             <label>
-                                <span className="text-red-600">* </span>License
+                                <span className="text-red-600">* </span>License Class
                             </label>
                             <Input
                                 style={{
@@ -392,6 +462,35 @@ export default function CompletePage() {
                             </div>
                         </div>
 
+                        <div className="my-4">
+                            <label className="mb-2">
+                                <span className="text-red-600">* </span>Upload License Image
+                            </label>
+
+                            <Upload
+                                action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
+                                listType="picture-card"
+                                fileList={fileList}
+                                onPreview={handlePreview}
+                                onChange={handleChangeAvatar}
+                            >
+                                {fileList.length >= 1 ? null : uploadButton}
+                            </Upload>
+                            {previewImage && (
+                                <Image
+                                    wrapperStyle={{
+                                        display: 'none',
+                                    }}
+                                    preview={{
+                                        visible: previewOpen,
+                                        onVisibleChange: (visible) => setPreviewOpen(visible),
+                                        afterOpenChange: (visible) => !visible && setPreviewImage(''),
+                                    }}
+                                    src={previewImage}
+                                />
+                            )}
+                        </div>
+
                         <div className="mt-4">
                             <Button type="primary" onClick={handleSubmit}>
                                 Submit
@@ -400,16 +499,6 @@ export default function CompletePage() {
                     </div>
                 </div>
             </Loading>
-            {/* <Popconfirm
-                title="Done Tasks"
-                description="Once you're done, you can access your account's admin page. There you can update your profile if needed. Are you sure you want to complete this?"
-                onConfirm={done}
-                onCancel={cancel}
-                okText="Done"
-                cancelText="Cancel"
-            >
-                <Button type="primary">Done</Button>
-            </Popconfirm> */}
         </div>
     );
 }
